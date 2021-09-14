@@ -309,9 +309,10 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                     shape: StadiumBorder(),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 50.0, vertical: 12.0),
+                                          horizontal: 0.0, vertical: 12.0),
                                       child: Text(
                                         "PROVIDE FEEDBACK",
+                                        softWrap:false,
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 50.0.sp),

@@ -35,14 +35,16 @@ class _FeedbackViewState extends State<FeedbackView> {
               Center(
                 child: Row(children: [
                   Container(
-                      width: MediaQuery.of(context).size.width / 3 - 20,
+                padding: const EdgeInsets.only(
+                    left: 5.0),
+                      width: MediaQuery.of(context).size.width / 2 - 20,
                       child: Text(
                         " Patient Name: ",
                         style: MyFontStyles.textHeadingFontStyle(context)
                             .copyWith(fontSize: 17),
                       )),
                   Container(
-                    width: MediaQuery.of(context).size.width / 3 - 20,
+                    width: MediaQuery.of(context).size.width / 2 - 20,
                     child: Text(
                       widget.patientName ?? "N/A",
                       style: MyFontStyles.doctorNameFontStyle(context)
