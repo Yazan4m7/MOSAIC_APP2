@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>690646858547-1s0m8dll76vhm4rvb40ulpa2cd22ip0m.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.690646858547-1s0m8dll76vhm4rvb40ulpa2cd22ip0m</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>690646858547-bsf045o4v1imb1gojh6evqaipfa05urs.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC4BPutvhtTdyCdTCVwB_LElwSxaoodv_M</string>
+	<key>GCM_SENDER_ID</key>
+	<string>690646858547</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.manshore.mosaicDoctors</string>
+	<key>PROJECT_ID</key>
+	<string>mosaic-doctors</string>
+	<key>STORAGE_BUCKET</key>
+	<string>mosaic-doctors.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:690646858547:ios:ee86e84b265a56ee1f5c46</string>
+	<key>DATABASE_URL</key>
+	<string>https://mosaic-doctors.firebaseio.com</string>
+</dict>
+</plist>

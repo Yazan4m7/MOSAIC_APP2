@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "690646858547",
+    "firebase_url": "https://mosaic-doctors.firebaseio.com",
+    "project_id": "mosaic-doctors",
+    "storage_bucket": "mosaic-doctors.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690646858547:android:655323ff14654eb01f5c46",
+        "android_client_info": {
+          "package_name": "com.manshore.mosaic_doctors"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "690646858547-bcj3kpogl37j9143pqp9klnbabv0eeer.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manshore.mosaic_doctors",
+            "certificate_hash": "c69b382d1e50ae8d07d923bd1b880202f65fb512"
+          }
+        },
+        {
+          "client_id": "690646858547-bsf045o4v1imb1gojh6evqaipfa05urs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manshore.mosaic_doctors",
+            "certificate_hash": "3d5b909e2b0146dc9bc6d3d5a080f3220f80c217"
+          }
+        },
+        {
+          "client_id": "690646858547-v9untpgd1ecaplib6538n157ouhpmole.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manshore.mosaic_doctors",
+            "certificate_hash": "bb0d9922a38daf9bc65ca25c3fea9c7c299c875c"
+          }
+        },
+        {
+          "client_id": "690646858547-f4rhugs8d6r1b83nej6fdquupc3ru9lk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDprKD9o8ihFwm5dMl6Deo6vBswfK5FyhA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "690646858547-f4rhugs8d6r1b83nej6fdquupc3ru9lk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "690646858547-1s0m8dll76vhm4rvb40ulpa2cd22ip0m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.manshore.mosaicDoctors"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
