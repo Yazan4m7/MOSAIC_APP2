@@ -1,12 +1,12 @@
 
 class DBAccountStatement {
-  String id;
-  String patientName;
-  String credit;
-  String debit;
-  String balance;
-  String doctorId;
-  String createdAt;
+  String? id;
+  String? patientName;
+  String? credit;
+  String? debit;
+  String? balance;
+  String? doctorId;
+  String? createdAt;
 
 
   DBAccountStatement({this.id, this.patientName, this.credit,this.debit, this.doctorId,

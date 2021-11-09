@@ -13,14 +13,14 @@ import 'notifications_old.dart';
 
 class AuthService {
   getUserData() {
-    User user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
 
     return user;
   }
 
   handleAuth() {
 
-    return StreamBuilder<User>(
+    return StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext context, snapshot) {
           if (snapshot.hasData)
@@ -78,9 +78,9 @@ class AuthService {
       Security.registerSession();
       handleAuth();
     }catch(e){
-      print(e.message);
+      print(e.toString());
       getIt<SessionData>().loginWelcomeMessage =
-      " Error: ${e.message}";
+      " Error: ${e.toString()}";
       AuthService.signOut();
     }
     //  UserController.registerNotificationToken();
@@ -100,7 +100,7 @@ class AuthService {
 //    for (DocumentSnapshot document in querySnapshot.) {
 //    print(document.reference);
 //    }
-    Global.prefs.setString("phoneNo", phoneNo);
+    Global.prefs!.setString("phoneNo", phoneNo);
     signIn(authCreds);
   }
 

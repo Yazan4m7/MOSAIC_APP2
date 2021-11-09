@@ -36,16 +36,16 @@ class _LabEntryRowState extends State<LabEntryRow> {
               child: Text(
                 root is PreviousMonthBalance
                     ? ""
-                    : root.createdAt.length > 10
-                        ? root.createdAt.substring(8, 10) + '-'+
+                    : root.createdAt!.length > 10
+                        ? root.createdAt!.substring(8, 10) + '-'+
                             Jiffy([
                               0000,
-                              int.parse(root.createdAt.substring(5, 7)) + 1,
+                              int.parse(root.createdAt!.substring(5, 7)) + 1,
                               00
                             ]).format("MM") +
                             "-" +
-                            root.createdAt.substring(2, 4)
-                        : root.createdAt,
+                            root.createdAt!.substring(2, 4)
+                        : root.createdAt!,
                 style: MyFontStyles.statementEntryFontStyle(context)
 
               ),
@@ -55,12 +55,12 @@ class _LabEntryRowState extends State<LabEntryRow> {
 
               width: rowWidth / labEntryCellWidthFactor,
               child: Text(
-                root.patientName ,
+                root.patientName! ,
                 style: root.patientName == "Payment"
                     ? MyFontStyles.statementPatientNameFontStyle(context)
                     .copyWith(
                     fontSize:
-                    Responsiveness.patientNameFontSize.sp + 2)
+                    Responsiveness.patientNameFontSize!.sp + 2)
                     : MyFontStyles.statementPatientNameFontStyle(context),
                 textAlign: TextAlign.right,
 
@@ -72,7 +72,7 @@ class _LabEntryRowState extends State<LabEntryRow> {
               child: Text(
                 root.credit == "N/A"
                     ? ""
-                    : root.credit,
+                    : root.credit!,
                 style: MyFontStyles.statementEntryFontStyle(context)
                     .copyWith(color: Colors.green),
                 textAlign: TextAlign.left
@@ -83,7 +83,7 @@ class _LabEntryRowState extends State<LabEntryRow> {
               padding: EdgeInsets.only(left: labCellsLeftPadding),
               width: rowWidth / labDebitCellWidthFactor,
               child: Text(
-                root.debit == "N/A" ? "" : root.debit,
+                root.debit == "N/A" ? "" : root.debit!,
                 style: MyFontStyles.statementEntryFontStyle(context),
                 textAlign: TextAlign.left
 
@@ -93,7 +93,7 @@ class _LabEntryRowState extends State<LabEntryRow> {
               padding: EdgeInsets.only(left: labCellsLeftPadding),
               width: rowWidth / labBalanceCellWidthFactor,
               child: Text(
-                root.balance,
+                root.balance!,
                 style: MyFontStyles.statementEntryFontStyle(context),
                 textAlign: TextAlign.left
 
@@ -106,7 +106,7 @@ class _LabEntryRowState extends State<LabEntryRow> {
         if (root.debit != "N/A") // its a case
         {
           print("root date : ${Jiffy(root.createdAt).format("yyyy-MM-dd")} ");
-          if(root.patientName.contains("عكس ح") && Jiffy(root.createdAt).isBefore(Jiffy([2021, 01, 09]))){
+          if(root.patientName!.contains("عكس ح") && Jiffy(root.createdAt).isBefore(Jiffy([2021, 01, 09]))){
             showMOSAICDialog("Case details unavailable.");
           return;}
           if (root.caseId == "N/A") {

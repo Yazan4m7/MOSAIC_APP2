@@ -10,14 +10,14 @@ import 'font_styles.dart';
 class SharedWidgets {
   static Widget getAppBarUI(
       BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, String title,
-      [Widget leftAppbarWidget, Function onBackButtonTap]) {
+      [Widget? leftAppbarWidget, Function? onBackButtonTap, Color? backgroundColor, double? shadowOpacity]) {
     return Container(
       height: AppBar().preferredSize.height,
       decoration: BoxDecoration(
-        color: Colors.transparent,
+        color: backgroundColor?? Colors.transparent,
         boxShadow: <BoxShadow>[
           BoxShadow(
-              color: Colors.grey.withOpacity(0.0),
+              color:  Colors.grey.withOpacity(shadowOpacity?? 0.0),
               offset: const Offset(0, 2),
               blurRadius: 8.0),
         ],
@@ -33,7 +33,7 @@ class SharedWidgets {
                 borderRadius: const BorderRadius.all(
                   Radius.circular(50.0),
                 ),
-                onTap: onBackButtonTap ??
+                onTap: onBackButtonTap as void Function()? ??
                     () {
                       Navigator.pop(context);
                     },
@@ -95,12 +95,12 @@ class SharedWidgets {
 
   static Widget getLabStatementAppBarUI(
       BuildContext context,
-      GlobalKey<ScaffoldState> scaffoldKey,
+      GlobalKey<ScaffoldState>? scaffoldKey,
       String title,
       Widget onBackAMonthIconButton,
       Widget onForwordAMonthIconButton,
-      [Widget leftAppbarWidget,
-      Function onBackButtonTap]) {
+      [Widget? leftAppbarWidget,
+      Function? onBackButtonTap]) {
     return Container(
       height: AppBar().preferredSize.height,
       decoration: BoxDecoration(
@@ -123,7 +123,7 @@ class SharedWidgets {
                 borderRadius: const BorderRadius.all(
                   Radius.circular(50.0),
                 ),
-                onTap: onBackButtonTap ??
+                onTap: onBackButtonTap as void Function()? ??
                     () {
                       Navigator.pop(context);
                     },
@@ -180,8 +180,8 @@ class SharedWidgets {
   }
 
   static Widget getImplantsStatementAppBarUI(
-      BuildContext context, GlobalKey<ScaffoldState> scaffoldKey,
-      [Widget leftAppbarWidget]) {
+      BuildContext context, GlobalKey<ScaffoldState>? scaffoldKey,
+      [Widget? leftAppbarWidget]) {
     return Container(
       height: AppBar().preferredSize.height,
       decoration: BoxDecoration(
@@ -277,8 +277,8 @@ class SharedWidgets {
     );
   }
 
-  static showMOSAICDialog(String text, BuildContext context,
-      [String title, Function onSubmit]) {
+  static showMOSAICDialog(String? text, BuildContext context,
+      [String? title, Function? onSubmit]) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -291,7 +291,7 @@ class SharedWidgets {
         });
   }
 
-  static Widget TextWidget({String text, TextStyle style, int maxChars}) {
+  static Widget TextWidget({required String text, TextStyle? style, required int maxChars}) {
     if (text.length > maxChars)
       return Marquee(
         scrollAxis: Axis.horizontal,

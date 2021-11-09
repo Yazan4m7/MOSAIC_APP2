@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mosaic_doctors/models/case.dart';
 import 'package:mosaic_doctors/models/discount.dart';
 import 'package:mosaic_doctors/models/doctor.dart';
 import 'package:mosaic_doctors/models/job.dart';
@@ -13,9 +14,9 @@ import 'package:mosaic_doctors/shared/widgets.dart';
 import 'package:mosaic_doctors/views/feedback.dart';
 
 class CaseDetailsView extends StatefulWidget {
-  String caseId;
-  String patientName;
-  String deliveryDate;
+  String? caseId;
+  String? patientName;
+  String? deliveryDate;
   CaseDetailsView({this.caseId, this.patientName, this.deliveryDate});
 
   @override
@@ -23,16 +24,20 @@ class CaseDetailsView extends StatefulWidget {
 }
 
 class _CaseDetailsViewState extends State<CaseDetailsView> {
-  Future jobsList;
-  Future caseItem;
-  getCaseDetails() {
+  Future? jobsList;
+  late Case caseItem;
+
+  getJobs() {
     jobsList = LabDatabase.getCaseJobs(widget.caseId);
-    caseItem = LabDatabase.getCase(widget.caseId);
+    getCase();
+  }
+  getCase() async{
+    caseItem = await (LabDatabase.getCase(widget.caseId) as Future<Case>);
   }
 
   @override
   void initState() {
-    getCaseDetails();
+    getJobs();
     super.initState();
   }
 
@@ -50,7 +55,7 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
           children: [
             SafeArea(
                 child: SharedWidgets.getAppBarUI(
-                    context, _scaffoldKey, "Case Info")),
+                    context, _scaffoldKey as GlobalKey<ScaffoldState>, "Case Info")),
             SingleChildScrollView(
               child: Padding(
                 padding:
@@ -95,7 +100,7 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                   child: Text(
                                       widget.deliveryDate == null
                                           ? "N/A "
-                                          : widget.deliveryDate
+                                          : widget.deliveryDate!
                                               .substring(0, 10),
                                       style: MyFontStyles
                                           .textValueheadingFontStyle(context)))
@@ -145,7 +150,7 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                         height: screenHeight / 3,
                         child: FutureBuilder(
                           future: jobsList,
-                          builder: (context, projectSnap) {
+                          builder: (context,AsyncSnapshot projectSnap) {
                             switch (projectSnap.connectionState) {
                               case ConnectionState.none:
                                 return SharedWidgets.loadingCircle(
@@ -171,9 +176,7 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                 }
                                 break;
                             }
-                            Doctor doctor = getIt<SessionData>().doctor;
-                            print(
-                                "Doctor disount list length: ${doctor.discounts.length} case id : ${widget.caseId} jobs list len: ${projectSnap.data.length}");
+                            Doctor? doctor = getIt<SessionData>().doctor;
                             return Stack(
                               children: [
                                 ListView.builder(
@@ -185,44 +188,38 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                     Job job = projectSnap.data[index];
 
                                     String numOfUnits =
-                                        (','.allMatches(job.unitNum).length + 1)
+                                        (','.allMatches(job.unitNum!).length + 1)
                                             .toString();
 
                                     double unitPriceAfterDiscount =
                                         double.parse(LabDatabase
                                             .materials[
-                                                int.parse(job.materialId) - 1]
-                                            .price);
+                                                int.parse(job.materialId!) - 1]!
+                                            .price!);
 
                                     double discount = 0.0;
-                                    if (doctor.discounts[
-                                            int.parse(job.materialId)] !=
+                                    if (doctor!.discounts[
+                                            int.parse(job.materialId!)] !=
                                         null) {
                                       Discount unitDiscount = doctor
-                                          .discounts[int.parse(job.materialId)];
+                                          .discounts[int.parse(job.materialId!)]!;
 
-                                      double unitPriceAfterDiscount =
-                                          double.parse(LabDatabase
-                                              .materials[
-                                                  int.parse(job.materialId) - 1]
-                                              .price);
                                       if (unitDiscount.type == '0') {
                                         // discount is fixed
                                         discount =
-                                            double.parse(unitDiscount.discount);
+                                            double.parse(unitDiscount.discount!);
                                       } else {
                                         discount = ((double.parse(
-                                                    unitDiscount.discount) /
+                                                    unitDiscount.discount!) /
                                                 100) *
                                             double.parse(LabDatabase
                                                 .materials[
-                                                    int.parse(job.materialId) -
-                                                        1]
-                                                .price));
+                                                    int.parse(job.materialId!) -
+                                                        1]!
+                                                .price!));
                                       }
                                     }
                                     unitPriceAfterDiscount = unitPriceAfterDiscount - discount;
-                                    print("unit price after discount calculating : $unitPriceAfterDiscount");
                                     double priceAfterDiscount =
                                         double.parse(numOfUnits) *
                                             unitPriceAfterDiscount;
@@ -251,9 +248,9 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                                 child: Text(
                                                   LabDatabase
                                                       .jobTypes[int.parse(
-                                                              job.typeId) -
-                                                          1]
-                                                      .name,
+                                                              job.typeId!) -
+                                                          1]!
+                                                      .name!,
                                                   style: MyFontStyles
                                                       .valueFontStyle(context),
                                                   textAlign: TextAlign.center,
@@ -265,9 +262,9 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                                 child: Text(
                                                     LabDatabase
                                                         .materials[int.parse(job
-                                                                .materialId) -
-                                                            1]
-                                                        .name,
+                                                                .materialId!) -
+                                                            1]!
+                                                        .name!,
                                                     style: MyFontStyles
                                                         .valueFontStyle(
                                                             context)),
@@ -303,14 +300,14 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                                     caseId: widget.caseId,
                                                     patientName:
                                                         widget.patientName,
-                                                    doctorId: doctor.id,
+                                                    doctorId: doctor!.id,
                                                   )));
                                     },
                                     shape: StadiumBorder(),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 0.0, vertical: 12.0),
-                                      child: Text(
+                                      child: caseItem.patientName!.contains("عكس ح") ? SizedBox(): Text(
                                         "PROVIDE FEEDBACK",
                                         softWrap:false,
                                         style: TextStyle(

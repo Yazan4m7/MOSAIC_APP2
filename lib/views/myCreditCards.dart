@@ -44,7 +44,7 @@ class MyCreditCards extends StatelessWidget {
                   bottom: cardHeight/10,
                   left: cardHeight/10,
                   child: Text(
-                    getIt<SessionData>().doctor.name,
+                    getIt<SessionData>().doctor!.name!,
                     style: TextStyle(
                         fontFamily: "Droid",
                         color: Colors.white,

@@ -2,10 +2,10 @@
 import 'dart:convert';
 
 class CreditCard {
-  String id;
-  String doctorId;
-  String cardNumber;
-  String expiryDate;
+  String? id;
+  String? doctorId;
+  String? cardNumber;
+  String? expiryDate;
 
 
   @override

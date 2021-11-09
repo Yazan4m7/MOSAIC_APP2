@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:get/get.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:mosaic_doctors/models/AccountStatementEntry.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,9 +21,10 @@ import 'package:mosaic_doctors/views/StatementEntryRow.dart';
 import 'package:intl/intl.dart';
 import 'package:mosaic_doctors/views/paymentView.dart';
 import '../SignIn_with_phone.dart';
+import 'createCaseWizerd.dart';
 
 class LabStatementMainScreen extends StatefulWidget {
-  Jiffy month;
+  Jiffy? month;
   LabStatementMainScreen([this.month]);
   @override
   _LabStatementMainScreenState createState() => _LabStatementMainScreenState();
@@ -33,21 +33,21 @@ class LabStatementMainScreen extends StatefulWidget {
 class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   // build bottom banner when statement is ready
   bool isStatementReady = false;
-  Future accountStatementEntries;
+  Future? accountStatementEntries;
   double roundedBalance = 0;
-  List<AccountStatementEntry> pdfTable = new List<AccountStatementEntry>();
+  List<AccountStatementEntry?> pdfTable = [];
   bool isOldestMonth = false;
   Jiffy twoMonthsAgo = Jiffy()..subtract(months: 2);
   bool isNewestMonth = true;
 
   static Jiffy currentMonth = Jiffy();
-  StatementTotals totalsItem;
+  StatementTotals? totalsItem;
   List<PopupMenuEntry<String>> options = [];
 
   getAccountStatement() {
 
     accountStatementEntries = LabDatabase.getDoctorAccountStatement(
-        getIt<SessionData>().doctor.id, false);
+        getIt<SessionData>().doctor!.id, false);
   }
   getAccountStatementTotals(currentMonth){
     totals = LabDatabase.getAccountStatementTotals(
@@ -55,7 +55,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   }
   refreshStatement() {
     accountStatementEntries = LabDatabase.getDoctorAccountStatement(
-        getIt<SessionData>().doctor.id, true);
+        getIt<SessionData>().doctor!.id, true);
     setState(() {});
   }
 
@@ -87,19 +87,18 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   }
 
 
-  static Future<Null> isRegistering;
-  static var completer = new Completer<Null>();
-  GlobalKey _scaffoldKey;
-  double screenHeight;
-  double rowWidth; // 16 padding
-  double screenWidth; // 16 padding
+  static Future<Null>? isRegistering;
+  GlobalKey? _scaffoldKey;
+  double? screenHeight;
+  double? rowWidth; // 16 padding
+  double? screenWidth; // 16 padding
   final formatter = new NumberFormat("#,###");
   bool _roundedBalanceBuilt = false;
   bool _accountStatementBuilt = false;
   bool _bottomCountersBuilt = false;
   @override
   Widget build(BuildContext context) {
-    print("Widgets Built");
+    print( "Doctor can create case : " + (getIt<SessionData>().doctor!.canCreateCase == '1').toString() );
 
     _setMonthsNavigationFlags();
     pdfTable.clear();
@@ -119,7 +118,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
               child: Column(children: [
                 SharedWidgets.getLabStatementAppBarUI(
                     context,
-                    _scaffoldKey,
+                    _scaffoldKey as GlobalKey<ScaffoldState>?,
                     "Account Statement ${currentMonth.format("MMMM yyyy")}",
                     !isOldestMonth ? IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: goBackAMonth) :IconButton(icon: Icon(Icons.arrow_back_ios,color: Colors.grey,), onPressed: null)  ,
                     !isNewestMonth ? IconButton(icon: Icon(Icons.arrow_forward_ios), onPressed: goForwardAMonth):IconButton(icon: Icon(Icons.arrow_forward_ios,color: Colors.grey,), onPressed: null) ,
@@ -139,12 +138,12 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   Widget _buildAccountStatement() {
     return FutureBuilder(
         future: accountStatementEntries,
-        builder: (context, accountStatementEntrys) {
+        builder: (context, AsyncSnapshot accountStatementEntrys) {
           if (accountStatementEntrys.connectionState ==
               ConnectionState.waiting) {
             return Center(
               child: Container(
-                height: screenHeight - 100,
+                height: screenHeight! - 100,
                 child: SpinKitWanderingCubes(
                   color: Colors.black,
                 ),
@@ -155,8 +154,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
           if (accountStatementEntrys.connectionState == ConnectionState.none) {
             return Center(
                 child: Container(
-              height: screenHeight - 300,
-              width: screenWidth - 100,
+              height: screenHeight! - 300,
+              width: screenWidth! - 100,
               child: Center(
                 child: Text(
                   "Failed To Connect, Please check your connection to the internet",
@@ -167,8 +166,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
           if (accountStatementEntrys.data == null) {
             return Center(
                 child: Container(
-              height: screenHeight - 300,
-              width: screenWidth - 100,
+              height: screenHeight! - 300,
+              width: screenWidth! - 100,
               child: Center(
                 child: Text(
                   "No Cases Found.",
@@ -189,21 +188,21 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                       child: Column(
                         children: [
                           Container(
-                            height: screenHeight / 90.h,
+                            height: screenHeight! / 90.h,
                             child: Container(
                               child: SingleChildScrollView(
                                 child: Row(
                                   children: [
                                     Container(
                                       padding: EdgeInsets.only(left: 3),
-                                      width: rowWidth / labDateCellWidthFactor,
+                                      width: rowWidth! / labDateCellWidthFactor,
                                       child: Text(" Date",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
                                                   context)),
                                     ),
                                     Container(
-                                      width: rowWidth / labEntryCellWidthFactor,
+                                      width: rowWidth! / labEntryCellWidthFactor,
                                       child: Text("Entry",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -213,7 +212,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                     Container(
                                       padding: EdgeInsets.only(left: 0),
 
-                                      width: rowWidth / labCreditCellWidthFactor,
+                                      width: rowWidth! / labCreditCellWidthFactor,
                                       child: Text("Credit",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -221,7 +220,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                           textAlign: TextAlign.left),
                                     ),
                                     Container(
-                                      width: rowWidth / labDebitCellWidthFactor,
+                                      width: rowWidth! / labDebitCellWidthFactor,
                                       child: Text("Debit",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -230,7 +229,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                     ),
                                     Container(
                                       // alignment: Alignment.center,
-                                      width: rowWidth / labBalanceCellWidthFactor,
+                                      width: rowWidth! / labBalanceCellWidthFactor,
                                       child: Text("Balance",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -247,17 +246,17 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Container(
-                              height: screenHeight - (screenHeight / 12) -328.h,
+                              height: screenHeight! - (screenHeight! / 12) -328.h,
                               width: rowWidth,
                               child: Padding(
                                 padding:
-                                    EdgeInsets.only(bottom: screenHeight / 25),
+                                    EdgeInsets.only(bottom: screenHeight! / 25),
                                 child: ListView.builder(
                                     scrollDirection: Axis.vertical,
                                     itemCount:
                                         accountStatementEntrys.data.length,
                                     itemBuilder: (context, index) {
-                                      AccountStatementEntry ASE =
+                                      AccountStatementEntry? ASE =
                                           accountStatementEntrys.data[index];
                                       //if doctor has no transactions this month, and we're at the latest month, build rounded balance and exit.
                                       if (!LabDatabase
@@ -277,7 +276,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                                     1],
                                             false);
                                       }
-                                      if (ASE.createdAt.substring(2, 7) !=
+                                      if (ASE!.createdAt!.substring(2, 7) !=
                                           currentMonth.format("yy-MM"))
                                         return SizedBox();
                                       if (!_roundedBalanceBuilt) {
@@ -317,16 +316,15 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
       ;
   }
 
-  Future totals ;
-  Widget _buildBottomCounters(double screenHeight, double screenWidth) {
+  Future? totals ;
+  Widget _buildBottomCounters(double? screenHeight, double? screenWidth) {
 
     getAccountStatementTotals(currentMonth);
     return FutureBuilder(
         future: totals,
-        builder: (context, data)
+        builder: (context,AsyncSnapshot data)
     {
       totalsItem = data.data;
-      //print(" Totals : debit = ${totalsItem.totalDebit} credit ${totalsItem.totalCredit} opening = ${totalsItem.openingBalance}");
       if(data.data == null)
       return Positioned(
           bottom: 0,
@@ -336,7 +334,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
             children: [
               Container(
                 padding: EdgeInsets.only(
-                    left: screenWidth / 8, top: (screenHeight / 12) / 6),
+                    left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: <BoxShadow>[
@@ -394,11 +392,11 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                           Row(
                             children: [
                               Text(
-                                  getIt<SessionData>().doctor.balance,
+                                  getIt<SessionData>().doctor!.balance!,
                                   style:
                                   MyFontStyles.statementHeaderFontStyle(context)
                                       .copyWith(
-                                    fontSize: Responsiveness.entryFontSize.sp + 3,
+                                    fontSize: Responsiveness.entryFontSize!.sp + 3,
                                   )),
                               Text(" JOD")
                             ],
@@ -409,6 +407,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                   ],
                 ),
               ),
+
               Container(
                   decoration: BoxDecoration(
                     color: Colors.black87.withOpacity(0.8),
@@ -461,7 +460,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
             ],
           ),
         );
-      print(totalsItem.totalDebit.toString()+ ' ' + totalsItem.openingBalance.toString()+ ' ' + totalsItem.totalCredit.toString());
+     // print(totalsItem.totalDebit.toString()+ ' ' + totalsItem.openingBalance.toString()+ ' ' + totalsItem.totalCredit.toString());
       return Positioned(
         bottom: 0,
         left: 0,
@@ -470,7 +469,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
           children: [
             Container(
               padding: EdgeInsets.only(
-                  left: screenWidth / 8, top: (screenHeight / 12) / 6),
+                  left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: <BoxShadow>[
@@ -492,7 +491,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                         Text("Credit: "),
                         Row(
                           children: [
-                            Text(formatter.format(totalsItem.totalCredit),
+                            Text(formatter.format(totalsItem!.totalCredit),
                                 style: MyFontStyles.statementHeaderFontStyle(
                                     context)),
                             Text(" JOD")
@@ -509,7 +508,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                         Text("Debit: "),
                         Row(
                           children: [
-                            Text(formatter.format(totalsItem.totalDebit),
+                            Text(formatter.format(totalsItem!.totalDebit),
                                 style: MyFontStyles.statementHeaderFontStyle(
                                     context),
                                 textAlign: TextAlign.left),
@@ -528,13 +527,13 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                         Row(
                           children: [
                             Text(
-                                getIt<SessionData>().doctor.balance == "N/A"
+                                getIt<SessionData>().doctor!.balance == "N/A"
                                     ? "0"
-                                    : formatter.format(totalsItem.totalDebit+ totalsItem.openingBalance - totalsItem.totalCredit),
+                                    : formatter.format(totalsItem!.totalDebit+ totalsItem!.openingBalance - totalsItem!.totalCredit),
                                 style:
                                 MyFontStyles.statementHeaderFontStyle(context)
                                     .copyWith(
-                                  fontSize: Responsiveness.entryFontSize.sp + 3,
+                                  fontSize: Responsiveness.entryFontSize!.sp + 3,
                                 )),
                             Text(" JOD")
                           ],
@@ -545,6 +544,58 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                 ],
               ),
             ),
+            ('1' == '1')?
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 0,horizontal: 0),
+                decoration: BoxDecoration(
+                  color: Colors.lightBlue.shade700,
+
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        offset: const Offset(0, 2),
+                        blurRadius: 8.0),
+                  ],
+                ),
+                height: screenHeight / 13,
+                width: screenWidth + 16,
+                child: FlatButton(
+                  textColor: Colors.white,
+                  splashColor: Colors.white70,
+                  child:
+                  Padding(
+                    padding: EdgeInsets.only(left:28.0.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.add_to_queue,size: 80.w,color: Colors.white,),
+                        Text("CREATE A NEW CASE", style: TextStyle(fontSize: 43.sp,color:Colors.white)),
+                        Container(
+                          width: 60.w,
+                          padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 5),
+                          child: FlatButton(
+                            shape: new RoundedRectangleBorder(
+                                borderRadius:
+                                new BorderRadius.circular(28.0)),
+                            splashColor: Colors.white,
+                            color: Colors.transparent,
+                            child: Icon(
+                                Icons.arrow_forward_rounded,
+                                color: Colors.white
+                            ),
+                            onPressed: () => {},
+                          ),
+                        )],
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            RegisterForm()));
+                    //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
+
+                  },
+                )) : SizedBox(),
             Container(
                 decoration: BoxDecoration(
                   color: Colors.black87.withOpacity(0.8),
@@ -597,24 +648,24 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
           ],
         ),
       );
-    });
+    }
+    );
   }
 
   double openingBalance=0;
-  Widget _buildRoundedBalanceEntry(AccountStatementEntry ASE,
+  Widget _buildRoundedBalanceEntry(AccountStatementEntry? ASE,
       [bool isCurrentMonthEntry = true]) {
 
     double rowWidth = MediaQuery.of(context).size.width ;
      openingBalance = 0;
-     print("building rounded entry : Current month = $isCurrentMonthEntry credit: ${ASE.credit} debit : ${ASE.debit} ASE: $ASE");
-    if (isCurrentMonthEntry) {
-      if (ASE.credit != "N/A") {
-        openingBalance = double.parse(ASE.balance) + double.parse(ASE.credit)  ;
+     if (isCurrentMonthEntry) {
+       if (ASE!.credit != "N/A") {
+        openingBalance = double.parse(ASE.balance!) + double.parse(ASE.credit!)  ;
       } else {
-        openingBalance = double.parse(ASE.balance) - double.parse(ASE.debit);
+        openingBalance = double.parse(ASE.balance!) - double.parse(ASE.debit!);
       }
     } else {
-      openingBalance = double.parse(ASE.balance);
+      openingBalance = double.parse(ASE!.balance!);
     }
     AccountStatementEntry ASEtoPrint = new AccountStatementEntry(
         patientName: "رصيد مدور",
@@ -643,7 +694,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                 child: Text("رصيد مدور",
                     style: MyFontStyles.statementPatientNameFontStyle(context)
                         .copyWith(
-                      fontWeight: FontWeight.w700,fontSize: Responsiveness.patientNameFontSize.sp+3.sp
+                      fontWeight: FontWeight.w700,fontSize: Responsiveness.patientNameFontSize!.sp+3.sp
                     ),
                     textAlign: TextAlign.right)),
             Container(
@@ -661,7 +712,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
               width: rowWidth / labBalanceCellWidthFactor,
               child: Text(openingBalance.toString(),
                   style: MyFontStyles.statementEntryFontStyle(context).copyWith(
-                    fontWeight: FontWeight.w700,fontSize: Responsiveness.patientNameFontSize.sp+7.sp
+                    fontWeight: FontWeight.w700,fontSize: Responsiveness.patientNameFontSize!.sp+7.sp
                   ),
                   textAlign: TextAlign.left),
             )
@@ -715,7 +766,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   });
   }
 
-   changeFontSize(BuildContext context){
+  changeFontSize(BuildContext context){
     showDialog(
         context: context,
         builder: (BuildContext context) =>  AlertDialog(
@@ -797,13 +848,13 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                 new ListTile(
                   leading: new Icon(Icons.save_alt),
                   title: new Text('Save as PDF'),
-                  onTap: ()  {Exporting.saveAsPDF(context,pdfTable,currentMonth,totalsItem.totalDebit.toString(),totalsItem.totalCredit.toString());
+                  onTap: ()  {Exporting.saveAsPDF(context,pdfTable,currentMonth,totalsItem!.totalDebit.toString(),totalsItem!.totalCredit.toString());
                   Navigator.of(context).pop();},
                 ),
                 new ListTile(
                   leading: new Icon(Icons.print),
                   title: new Text('Print'),
-                  onTap: () {Exporting.printLabPDF(context,pdfTable,currentMonth,totalsItem.totalDebit.toString(),totalsItem.totalCredit.toString());
+                  onTap: () {Exporting.printLabPDF(context,pdfTable,currentMonth,totalsItem!.totalDebit.toString(),totalsItem!.totalCredit.toString());
                   Navigator.of(context).pop();},
                 ),
                 new ListTile(

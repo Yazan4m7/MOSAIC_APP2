@@ -19,14 +19,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum SessionStatus { valid, inValid }
 
 class Security {
-  static Future<Null> isRegistering;
+  static Future<Null>? isRegistering;
   static var completer = new Completer<Null>();
 
   static checkSession() async {
     if (isRegistering != null) await isRegistering; // wait for future complete
 
     final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
-    String UUID;
+    String? UUID;
     if (Platform.isAndroid) {
       var build = await deviceInfoPlugin.androidInfo;
       UUID = build.androidId; //UUID for Android
@@ -36,9 +36,9 @@ class Security {
     }
     var map = Map<String, dynamic>();
 
-    if(getIt<SessionData>().doctor == null ) await LabDatabase.getDoctorInfo(Global.prefs.getString("phoneNo"));
+    if(getIt<SessionData>().doctor == null ) await LabDatabase.getDoctorInfo(Global.prefs!.getString("phoneNo")!);
     String getSessionQuery =
-        "select * from mobile_sessions where device_uid = '$UUID' AND is_allowed =1 AND user_id = ${getIt<SessionData>().doctor.id}";
+        "select * from mobile_sessions where device_uid = '$UUID' AND is_allowed =1 AND user_id = ${getIt<SessionData>().doctor!.id}";
     map['action'] = "GET";
     map['query'] = getSessionQuery;
 
@@ -57,10 +57,10 @@ class Security {
     if(await checkIfAlreadyRegistered())
       return;
     var map = Map<String, dynamic>();
-    String deviceName;
-    String deviceVersion;
-    String identifier;
-    String platform;
+    String? deviceName;
+    String? deviceVersion;
+    String? identifier;
+    String? platform;
     final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
 
     try {
@@ -83,10 +83,10 @@ class Security {
 
     String ip = await getIP();
 
-    if(getIt<SessionData>().doctor == null ) await LabDatabase.getDoctorInfo(Global.prefs.getString("phoneNo"));
+    if(getIt<SessionData>().doctor == null ) await LabDatabase.getDoctorInfo(Global.prefs!.getString("phoneNo")!);
     String registerDeviceQuery = "INSERT INTO `mobile_sessions` "
         "(`id`, `device_uid`, `user_id`, `platform` , `os_id`, `device_name`, `ip`, `is_allowed`, `date_created`) VALUES "
-        "(NULL, '$identifier', '${getIt<SessionData>().doctor.id}','$platform' , '$deviceVersion', '$deviceName', '$ip', '1', current_timestamp())";
+        "(NULL, '$identifier', '${getIt<SessionData>().doctor!.id}','$platform' , '$deviceVersion', '$deviceName', '$ip', '1', current_timestamp())";
     map['action'] = "POST";
     map['query'] = registerDeviceQuery;
       print("registering $registerDeviceQuery ");
@@ -125,7 +125,7 @@ class Security {
     var map = Map<String, dynamic>();
     List<Device> loggedInDevices =[];
     String getDevicesQuery =
-        "select * from mobile_sessions where user_id = ${getIt<SessionData>().doctor.id}";
+        "select * from mobile_sessions where user_id = ${getIt<SessionData>().doctor!.id}";
     map['action'] = "GET";
     map['query'] = getDevicesQuery;
     print("getting logge in devices  $getDevicesQuery");
@@ -140,7 +140,7 @@ class Security {
   }
   static checkIfAlreadyRegistered() async{
     final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
-    String UUID;
+    String? UUID;
     if (Platform.isAndroid) {
       var build = await deviceInfoPlugin.androidInfo;
       UUID = build.androidId; //UUID for Android
@@ -150,9 +150,9 @@ class Security {
     }
     var map = Map<String, dynamic>();
 
-    if(getIt<SessionData>().doctor == null ) await LabDatabase.getDoctorInfo(Global.prefs.getString("phoneNo"));
+    if(getIt<SessionData>().doctor == null ) await LabDatabase.getDoctorInfo(Global.prefs!.getString("phoneNo")!);
     String getSessionQuery =
-        "select * from mobile_sessions where device_uid = '$UUID' AND is_allowed =1 AND user_id = ${getIt<SessionData>().doctor.id}";
+        "select * from mobile_sessions where device_uid = '$UUID' AND is_allowed =1 AND user_id = ${getIt<SessionData>().doctor!.id}";
     map['action'] = "GET";
     map['query'] = getSessionQuery;
 
@@ -165,7 +165,7 @@ class Security {
     }
   }
 
-  static logoutDevice(String UUID) async{
+  static logoutDevice(String? UUID) async{
     print("Loggin out $UUID");
     var map = Map<String, dynamic>();
     String removeDeviceQuery = "DELETE FROM `mobile_sessions` WHERE `mobile_sessions`.`device_uid` = '$UUID'";
@@ -177,7 +177,7 @@ class Security {
 
   static getDeviceUUID()async{
     final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
-    String UUID;
+    String? UUID;
     if (Platform.isAndroid) {
       var build = await deviceInfoPlugin.androidInfo;
       UUID = build.androidId; //UUID for Android

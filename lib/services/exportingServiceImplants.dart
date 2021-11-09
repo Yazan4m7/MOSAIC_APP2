@@ -1,16 +1,13 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/material.dart' as mats hide Image;
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:jiffy/jiffy.dart';
-import 'package:mosaic_doctors/models/AccountStatementEntry.dart';
 import 'package:mosaic_doctors/models/implantStatementRowModel.dart';
 import 'package:mosaic_doctors/models/nbDoctor.dart';
 import 'package:mosaic_doctors/models/sessionData.dart';
 import 'package:mosaic_doctors/shared/locator.dart';
-import 'package:mosaic_doctors/views/ImplantsEntryRow.dart';
 import 'package:pdf/pdf.dart';
 import 'dart:io';
 import 'package:open_file/open_file.dart';
@@ -24,7 +21,7 @@ class ExportingServiceImplants{
   static saveIASAsPDF(context,  List<ImplantStatementRowModel> entries, NbDoctor nbDoctor) async {
     final pdf =
     await createImplantsPdf(context, entries, nbDoctor);
-    Directory tempDir;
+    Directory? tempDir;
 
     if (Platform.isIOS) {
       await Permission.storage.request();
@@ -32,7 +29,7 @@ class ExportingServiceImplants{
     } else
       tempDir = await getExternalStorageDirectory();
 
-    File file = File("${tempDir.path}/MOSAIC.pdf");
+    File file = File("${tempDir!.path}/MOSAIC.pdf");
     print("file created");
     await file.writeAsBytes(await pdf.save(), flush: true);
     print("opening ${file.path}");
@@ -99,7 +96,7 @@ class ExportingServiceImplants{
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              'Offer Period : ${getIt<SessionData>().implantsFirstOrderDate.substring(0, 10)} - ${(int.parse(getIt<SessionData>().implantsFirstOrderDate.substring(0, 4)) + 1).toString() + getIt<SessionData>().implantsFirstOrderDate.substring(4, 10)}',
+                              'Offer Period : ${getIt<SessionData>().implantsFirstOrderDate!.substring(0, 10)} - ${(int.parse(getIt<SessionData>().implantsFirstOrderDate!.substring(0, 4)) + 1).toString() + getIt<SessionData>().implantsFirstOrderDate!.substring(4, 10)}',
                               style: TextStyle(
                                 fontSize: 8,
                               )),
@@ -122,7 +119,7 @@ class ExportingServiceImplants{
                           Directionality(
                               textDirection: TextDirection.rtl,
                               child: Text(
-                                '${getIt<SessionData>().doctor.name}',
+                                '${getIt<SessionData>().doctor!.name}',
                                 style: TextStyle(
                                     font: arialBold,
                                     fontSize: 18,
@@ -197,7 +194,7 @@ class ExportingServiceImplants{
                         Container(
                             padding: EdgeInsets.symmetric(
                                 vertical: 3, horizontal: 5),
-                            child: Text(item.createdAt.substring(0, 10))),
+                            child: Text(item.createdAt!.substring(0, 10))),
                         Container(
                             alignment: Alignment.topLeft,
                             padding: EdgeInsets.symmetric(
@@ -240,23 +237,23 @@ class ExportingServiceImplants{
                             padding: EdgeInsets.symmetric(
                                 vertical: 3, horizontal: 5),
                             child:
-                            Text(item.type == "N/A" ? "" : item.type)),
+                            Text(item.type == "N/A" ? "" : item.type!)),
                         Container(
                             padding: EdgeInsets.symmetric(
                                 vertical: 3, horizontal: 5),
-                            child: Text(item.qty == "N/A" ? "" : item.qty)),
+                            child: Text(item.qty == "N/A" ? "" : item.qty!)),
                         Container(
                             padding: EdgeInsets.symmetric(
                                 vertical: 3, horizontal: 5),
-                            child: Text(item.qty == "-" ? "-" : minusIfReturn + item.unitPrice)),
+                            child: Text(item.qty == "-" ? "-" : minusIfReturn + item.unitPrice!)),
                         Container(
                             padding: EdgeInsets.symmetric(
                                 vertical: 3, horizontal: 5),
-                            child: Text(item.amount)),
+                            child: Text(item.amount!)),
                         Container(
                             padding: EdgeInsets.symmetric(
                                 vertical: 3, horizontal: 5),
-                            child: Text(item.balance,
+                            child: Text(item.balance!,
                                 style:
                                 TextStyle(fontWeight: FontWeight.bold)))
                       ]);
@@ -300,7 +297,7 @@ class ExportingServiceImplants{
                       Container(
                           padding: EdgeInsets.symmetric(
                               vertical: 3, horizontal: 5),
-                          child: Text(nbDoctor.balance + ' JOD',
+                          child: Text(nbDoctor.balance! + ' JOD',
                               style: TextStyle(
                                   font: arialBold,
                                   fontWeight: FontWeight.bold)))
@@ -315,7 +312,7 @@ class ExportingServiceImplants{
       NbDoctor nbDoctor) async {
     final pdf = await createImplantsPdf(context, entries, nbDoctor);
     await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdf.save());
+        onLayout: ((PdfPageFormat format) async => pdf.save()) );
   }
 
 

@@ -1,12 +1,12 @@
 class Case {
-  String id;
-  String orderId;
-  String patientName;
-  String deliveryDate;
-  String currentStatus;
-  String doctorId;
-  String createdBy;
-  String createdAt;
+  String? id;
+  String? orderId;
+  String? patientName;
+  String? deliveryDate;
+  String? currentStatus;
+  String? doctorId;
+  String? createdBy;
+  String? createdAt;
 
   Case({
     this.id,

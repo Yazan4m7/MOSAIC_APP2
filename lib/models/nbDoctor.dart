@@ -1,15 +1,15 @@
 
 class NbDoctor {
-  String id;
-  String name;
-  String unitsBoughtActive;
-  String unitsBoughtParallel;
-  String availableBonusActive;
-  String availableBonusParallel;
-  String consumedBonusActive;
-  String consumedBonusParallel;
-  String balance;
-  String phone;
+  String? id;
+  String? name;
+  String? unitsBoughtActive;
+  String? unitsBoughtParallel;
+  String? availableBonusActive;
+  String? availableBonusParallel;
+  String? consumedBonusActive;
+  String? consumedBonusParallel;
+  String? balance;
+  String? phone;
 
 
   NbDoctor({this.id, this.name, this.unitsBoughtActive, this.unitsBoughtParallel,

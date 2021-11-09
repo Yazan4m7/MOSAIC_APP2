@@ -20,23 +20,23 @@ import 'package:mosaic_doctors/views/paymentView.dart';
 import 'ImplantsEntryRow.dart';
 
 class ImplantsStatementView extends StatefulWidget {
-  Jiffy month;
+  Jiffy? month;
   ImplantsStatementView([this.month]);
   @override
   _ImplantsStatementViewState createState() => _ImplantsStatementViewState();
 }
 
 class _ImplantsStatementViewState extends State<ImplantsStatementView> {
-  Future nbDoctorRecord;
+  Future? nbDoctorRecord;
   bool isStatementReady = false;
-  Future accountStatementEntries;
-  List<ImplantStatementRowModel> pdfTable = [];
-  StatementTotals totalsItem;
+  Future? accountStatementEntries;
+  List<ImplantStatementRowModel?> pdfTable = [];
+  StatementTotals? totalsItem;
   List<PopupMenuEntry<String>> options = [];
 
   getAccountStatement() {
     accountStatementEntries = ImplantsDatabase.getDoctorImplantAccountStatement(
-        getIt<SessionData>().doctor.implantsRecordId, true);
+        getIt<SessionData>().doctor!.implantsRecordId, true);
   }
 
   getAccountStatementTotals() {
@@ -45,26 +45,31 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
 
   refreshStatement() {
     accountStatementEntries = ImplantsDatabase.getDoctorImplantAccountStatement(
-        getIt<SessionData>().doctor.implantsRecordId, false);
+        getIt<SessionData>().doctor!.implantsRecordId, false);
     nbDoctorRecord = ImplantsDatabase.getDoctorRecord(true);
     setState(() {});
   }
-
+  getTransactionType() {
+    if(ImplantsDatabase.nbTransTypes == null)
+   ImplantsDatabase.getTransactionTypes(true);
+  }
   @override
   void initState() {
     getAccountStatement();
     getAccountStatementTotals();
+    getTransactionType();
     super.initState();
   }
 
-  GlobalKey _scaffoldKey;
-  double screenHeight;
-  double rowWidth; // 16 padding
-  double screenWidth; // 16 padding
+  GlobalKey? _scaffoldKey;
+  double? screenHeight;
+  double? rowWidth; // 16 padding
+  double? screenWidth; // 16 padding
   final formatter = new NumberFormat("#,###");
 
   @override
   Widget build(BuildContext context) {
+    print("types : ${ImplantsDatabase.nbTransTypes}" );
     pdfTable.clear();
     _scaffoldKey = GlobalKey<ScaffoldState>();
     screenHeight = MediaQuery.of(context).size.height - 22;
@@ -81,7 +86,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
               child: Column(children: [
                 SharedWidgets.getImplantsStatementAppBarUI(
                     context,
-                    _scaffoldKey,
+                    _scaffoldKey as GlobalKey<ScaffoldState>?,
                     IconButton(
                         icon: Icon(
                           Icons.menu,
@@ -103,12 +108,12 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
   Widget _buildAccountStatement() {
     return FutureBuilder(
         future: accountStatementEntries,
-        builder: (context, accountStatementEntrys) {
+        builder: (context, AsyncSnapshot accountStatementEntrys) {
           if (accountStatementEntrys.connectionState ==
               ConnectionState.waiting) {
             return Center(
               child: Container(
-                height: screenHeight - 100,
+                height: screenHeight! - 100,
                 child: SpinKitWanderingCubes(
                   color: Colors.black,
                 ),
@@ -118,8 +123,8 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
           if (accountStatementEntrys.connectionState == ConnectionState.none) {
             return Center(
                 child: Container(
-              height: screenHeight - 300,
-              width: screenWidth - 100,
+              height: screenHeight! - 300,
+              width: screenWidth! - 100,
               child: Center(
                 child: Text(
                   "Failed To Connect, Please check your connection to the internet",
@@ -130,8 +135,8 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
           if (accountStatementEntrys.data == null) {
             return Center(
                 child: Container(
-              height: screenHeight - 300,
-              width: screenWidth - 100,
+              height: screenHeight! - 300,
+              width: screenWidth! - 100,
               child: Center(
                 child: Text(
                   "No Orders Found.",
@@ -151,14 +156,14 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: screenHeight / 90.h,
+                            height: screenHeight! / 90.h,
                             child: Container(
                               child: SingleChildScrollView(
                                 child: Row(
                                   children: [
                                     Container(
                                       padding: EdgeInsets.only(left: 0),
-                                      width: rowWidth /
+                                      width: rowWidth! /
                                           implantsDateCellWidthFactor,
                                       child: Text("Date",
                                           style: MyFontStyles
@@ -166,7 +171,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                                   context)),
                                     ),
                                     Container(
-                                      width: rowWidth /
+                                      width: rowWidth! /
                                           implantsEntryCellWidthFactor,
                                       child: Text("Implant",
                                           style: MyFontStyles
@@ -175,7 +180,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                           textAlign: TextAlign.left),
                                     ),
                                     Container(
-                                      width: rowWidth /
+                                      width: rowWidth! /
                                           implantsTypeCellWidthFactor,
                                       child: Text("Trans.",
                                           style: MyFontStyles
@@ -186,7 +191,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                     Container(
                                       padding: EdgeInsets.only(left: 0),
                                       width:
-                                          rowWidth / implantsQtyCellWidthFactor,
+                                          rowWidth! / implantsQtyCellWidthFactor,
                                       child: Text("Qty.",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -195,7 +200,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                     ),
                                     Container(
                                       padding: EdgeInsets.only(left: 3),
-                                      width: rowWidth /
+                                      width: rowWidth! /
                                           implantsPriceCellWidthFactor,
                                       child: Text("P.",
                                           style: MyFontStyles
@@ -205,7 +210,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                     ),
                                     Container(
                                       // alignment: Alignment.center,
-                                      width: rowWidth /
+                                      width: rowWidth! /
                                           implantsAmountCellWidthFactor,
                                       child: Text("T.",
                                           style: MyFontStyles
@@ -215,7 +220,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                     ),
                                     Container(
                                       // alignment: Alignment.center,
-                                      width: rowWidth /
+                                      width: rowWidth! /
                                           implantsBalanceCellWidthFactor,
                                       child: Text("BL.",
                                           style: MyFontStyles
@@ -236,17 +241,17 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                             scrollDirection: Axis.horizontal,
                             child: Container(
                               height:
-                                  screenHeight - (screenHeight / 2.58) ,
+                                  screenHeight! - (screenHeight! / 2.58) ,
                               width: rowWidth,
                               child: Padding(
                                 padding:
-                                    EdgeInsets.only(bottom: screenHeight / 25),
+                                    EdgeInsets.only(bottom: screenHeight! / 25),
                                 child: ListView.builder(
                                     scrollDirection: Axis.vertical,
                                     itemCount:
-                                        accountStatementEntrys.data.length,
+                                        accountStatementEntrys.data.length ,
                                     itemBuilder: (context, index) {
-                                      ImplantStatementRowModel ASE =
+                                      ImplantStatementRowModel? ASE =
                                           accountStatementEntrys.data[index];
                                       pdfTable.add(ASE);
                                       return ImplantsEntryRow(ASE);
@@ -265,7 +270,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
         });
   }
 
-  Widget _buildBottomCounters(double screenHeight, double screenWidth) {
+  Widget _buildBottomCounters(double? screenHeight, double? screenWidth) {
     getAccountStatementTotals();
     return FutureBuilder(
         future: nbDoctorRecord,
@@ -281,7 +286,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
               ),
             );
           }
-          NbDoctor nbDoctor = data.data;
+          NbDoctor? nbDoctor = data.data as NbDoctor?;
           //print(" Totals : debit = ${totalsItem.totalDebit} credit ${totalsItem.totalCredit} opening = ${totalsItem.openingBalance}");
           if (data.data == null)
             // in case of no data
@@ -336,7 +341,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                   ),
                   Container(
                     color: Colors.white,
-                    height: screenHeight / 18,
+                    height: screenHeight! / 18,
                     child: Row(
                         //crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -359,7 +364,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                               ),
                               Text(
                                 getIt<SessionData>()
-                                    .implantsFirstOrderDate
+                                    .implantsFirstOrderDate!
                                     .substring(0, 10),
                                 style: TextStyle(fontSize: implantsBottomValueFS),
                               )
@@ -386,12 +391,12 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
 
                               Text(
                                 (int.parse(getIt<SessionData>()
-                                            .implantsFirstOrderDate
+                                            .implantsFirstOrderDate!
                                             .substring(0, 4)) +
                                         1)
                                     .toString() +
                                 getIt<SessionData>()
-                                    .implantsFirstOrderDate
+                                    .implantsFirstOrderDate!
                                     .substring(4, 10),
                                 style: TextStyle(fontSize: implantsBottomValueFS),
                               ),
@@ -448,11 +453,11 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                               children: [
                                 Flexible(
                                   flex: 5,
-                                  child: Text(nbDoctor.unitsBoughtActive),
+                                  child: Text(nbDoctor!.unitsBoughtActive!),
                                 ),
                                 Flexible(
                                   flex: 5,
-                                  child: Text(nbDoctor.unitsBoughtParallel),
+                                  child: Text(nbDoctor.unitsBoughtParallel!),
                                 )
                               ],
                             ),
@@ -500,11 +505,11 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                               children: [
                                 Flexible(
                                   flex: 5,
-                                  child: Text(nbDoctor.availableBonusActive),
+                                  child: Text(nbDoctor.availableBonusActive!),
                                 ),
                                 Flexible(
                                   flex: 5,
-                                  child: Text(nbDoctor.availableBonusParallel),
+                                  child: Text(nbDoctor.availableBonusParallel!),
                                 )
                               ],
                             ),
@@ -535,7 +540,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                             Flexible(
                               flex: 5,
                               child: Text(
-                                formatter.format(int.parse(nbDoctor.balance)) +
+                                formatter.format(int.parse(nbDoctor.balance!)) +
                                 " JOD",
                                 style: TextStyle(
                                 fontSize: implantsBottomValueFS + 10.sp,
@@ -558,7 +563,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                         ],
                       ),
                       height: screenHeight / 13,
-                      width: screenWidth + 16,
+                      width: screenWidth! + 16,
                       child: FlatButton(
                         textColor: Colors.white,
                         splashColor: Colors.grey,
@@ -687,7 +692,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                   leading: new Icon(Icons.save_alt),
                   title: new Text('Save as PDF'),
                   onTap: () async {
-                    ExportingServiceImplants.printImplantsPDF(context, pdfTable, await ImplantsDatabase.getDoctorRecord(true));
+                    ExportingServiceImplants.printImplantsPDF(context, pdfTable as List<ImplantStatementRowModel>, await (ImplantsDatabase.getDoctorRecord(true) as FutureOr<NbDoctor>));
                     Navigator.of(context).pop();
                   },
                 ),
@@ -695,7 +700,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                   leading: new Icon(Icons.print),
                   title: new Text('Print'),
                   onTap: () async {
-                    ExportingServiceImplants.printImplantsPDF(context, pdfTable, await ImplantsDatabase.getDoctorRecord(true));
+                    ExportingServiceImplants.printImplantsPDF(context, pdfTable as List<ImplantStatementRowModel>, await (ImplantsDatabase.getDoctorRecord(true) as FutureOr<NbDoctor>));
                     Navigator.of(context).pop();
                   },
                 ),

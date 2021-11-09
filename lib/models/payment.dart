@@ -1,11 +1,11 @@
 
 class Payment {
-  String id;
-  String amount;
-  String doctorId;
-  String notes;
-  String collector;
-  String createdAt;
+  String? id;
+  String? amount;
+  String? doctorId;
+  String? notes;
+  String? collector;
+  String? createdAt;
 
 
   Payment({this.id, this.amount,  this.doctorId, this.notes,this.collector,this.createdAt});

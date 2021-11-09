@@ -1,6 +1,6 @@
 class JobType {
-  String id;
-  String name;
+  String? id;
+  String? name;
 
 
   JobType({this.id, this.name});

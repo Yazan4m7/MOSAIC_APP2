@@ -1,11 +1,11 @@
 class Job{
-  String id;
-  String unitNum;
-  String typeId;
-  String color;
-  String style;
-  String materialId;
-  String orderId;
+  String? id;
+  String? unitNum;
+  String? typeId;
+  String? color;
+  String? style;
+  String? materialId;
+  String? orderId;
 
 
   @override

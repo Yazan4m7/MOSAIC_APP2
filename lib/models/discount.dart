@@ -1,9 +1,9 @@
 class Discount {
-  String id;
-  String doctorId;
-  String materialId;
-  String discount;
-  String type;
+  String? id;
+  String? doctorId;
+  String? materialId;
+  String? discount;
+  String? type;
 
   @override
   String toString() {

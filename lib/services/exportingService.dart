@@ -19,7 +19,7 @@ class Exporting {
 
   static createPdf(
       mats.BuildContext context,
-      List<AccountStatementEntry> entries,
+      List<AccountStatementEntry?> entries,
       Jiffy month,
       String totalDebit,
       String totalCredit) async {
@@ -105,7 +105,7 @@ class Exporting {
                               Directionality(
                                   textDirection: TextDirection.rtl,
                                   child: Text(
-                                    '${getIt<SessionData>().doctor.name}',
+                                    '${getIt<SessionData>().doctor!.name}',
                                     style: TextStyle(
                                         font: arialBold,
                                         fontSize: 18,
@@ -158,10 +158,10 @@ class Exporting {
                     ...entries.map((item) {
                       openingBalance = double.parse(entries
                           .where((element) =>
-                              element.patientName == "رصيد مدور" ||
+                              element!.patientName == "رصيد مدور" ||
                               element.patientName == "رصيد افتتاحي")
-                          .first
-                          .balance);
+                          .first!
+                          .balance!);
                       _isEvenRow = !_isEvenRow;
                       return TableRow(
                           decoration: _isEvenRow
@@ -169,14 +169,14 @@ class Exporting {
                               : BoxDecoration(),
                           children: [
                             Container(
-                                padding: item.patientName == "رصيد مدور"
+                                padding: item!.patientName == "رصيد مدور"
                                     ? EdgeInsets.symmetric(
                                         vertical: 10, horizontal: 5)
                                     : EdgeInsets.symmetric(
                                         vertical: 3, horizontal: 5),
                                 child: Text(item.patientName == "رصيد مدور"
                                     ? ""
-                                    : item.createdAt.substring(0, 10))),
+                                    : item.createdAt!.substring(0, 10))),
                             Container(
                               alignment: Alignment.topRight,
                               padding: EdgeInsets.symmetric(
@@ -186,10 +186,10 @@ class Exporting {
                                 child: Text(
                                   item.patientName == "رصيد افتتاحي"
                                       ? "رصيد مدور"
-                                      : item.patientName.contains("عكس")
+                                      : item.patientName!.contains("عكس")
                                           ? fixReversedStatement(
-                                              item.patientName)
-                                          : item.patientName,
+                                              item.patientName!)
+                                          : item.patientName!,
                                   style: (item.patientName == "رصيد مدور" ||
                                           item.patientName == "رصيد افتتاحي")
                                       ? TextStyle(
@@ -205,20 +205,20 @@ class Exporting {
                                 child: Text(item.debit == "N/A"
                                     ? ""
                                     : formatter
-                                        .format(double.parse(item.debit)))),
+                                        .format(double.parse(item.debit!)))),
                             Container(
                                 padding: EdgeInsets.symmetric(
                                     vertical: 3, horizontal: 5),
                                 child: Text(item.credit == "N/A"
                                     ? ""
                                     : formatter
-                                        .format(double.parse(item.credit)))),
+                                        .format(double.parse(item.credit!)))),
                             Container(
                                 padding: EdgeInsets.symmetric(
                                     vertical: 3, horizontal: 5),
                                 child: Text(
                                     formatter
-                                        .format(double.parse(item.balance)),
+                                        .format(double.parse(item.balance!)),
                                     style: (item.patientName == "رصيد مدور" ||
                                             item.patientName == "رصيد افتتاحي")
                                         ? TextStyle(fontWeight: FontWeight.bold)
@@ -295,18 +295,18 @@ class Exporting {
     return fixedText + ")عكس حركة(";
   }
 
-  static saveAsPDF(context, List<AccountStatementEntry> entries, Jiffy month,
+  static saveAsPDF(context, List<AccountStatementEntry?> entries, Jiffy month,
       String totalDebit, String totalCredit) async {
     final pdf =
         await createPdf(context, entries, month, totalDebit, totalCredit);
-    Directory tempDir;
+    Directory? tempDir;
 
     if (Platform.isIOS) {
       await Permission.storage.request();
       tempDir = await getApplicationDocumentsDirectory();
     } else tempDir = await getExternalStorageDirectory();
 
-    File file = File("${tempDir.path}/MOSAIC.pdf");
+    File file = File("${tempDir!.path}/MOSAIC.pdf");
     print("file created");
     await file.writeAsBytes(await pdf.save(), flush: true);
     print("opening ${file.path}");
@@ -314,11 +314,11 @@ class Exporting {
     print("opened");
   }
 
-  static printLabPDF(context, List<AccountStatementEntry> entries, Jiffy month,
+  static printLabPDF(context, List<AccountStatementEntry?> entries, Jiffy month,
       String totalDebit, String totalCredit) async {
     final pdf =
         await createPdf(context, entries, month, totalDebit, totalCredit);
     await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdf.save());
+        onLayout: ((PdfPageFormat format) async => pdf.save()));
   }
 }

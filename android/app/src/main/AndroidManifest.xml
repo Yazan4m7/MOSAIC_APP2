@@ -5,7 +5,8 @@
         android:label="MOSAIC"
         android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true"
-       android:name="io.flutter.app.FlutterApplication">
+       android:name="io.flutter.app.FlutterApplication"
+       android:requestLegacyExternalStorage="true">
 
         <activity
             android:name=".MainActivity"

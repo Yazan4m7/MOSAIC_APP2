@@ -23,18 +23,17 @@ class LabDatabase {
   static List<AccountStatementEntry> singleMonthAccountStatementEntries = [];
   static List<dynamic> currentAccountStatementEntries = [];
   static List<Job> caseJobsList = [];
-  static List<String> docCasesIds = [];
+  static List<String?> docCasesIds = [];
   static List<Job> allCaseJobsList = [];
   static List<Payment> docPayments = [];
-  static List<PreviousMonthBalance> previousMonthsBalances =
-      List<PreviousMonthBalance>();
+  static List<PreviousMonthBalance> previousMonthsBalances = [];
   static Map<int, JobType> jobTypes = Map<int, JobType>();
   static Map<int, Material> materials = Map<int, Material>();
   static StatementTotals totals = StatementTotals();
   static StatementTotals singleMonthTotals = StatementTotals();
   static String currentYearMonth = Jiffy().format("yy-MM");
-  static List<dynamic> entries = List<dynamic>();
-  static String firstEntryDate;
+  static List<dynamic> entries = [];
+  static String? firstEntryDate;
   static bool drHasTransactionsThisMonth = true;
 
   static Future get30sepBalance(String doctorId) async {
@@ -71,7 +70,7 @@ class LabDatabase {
     accountStatementEntries.add(openingBalance);
   }
 
-  static Future getDocPayments(String doctorId) async {
+  static Future getDocPayments(String? doctorId) async {
     var map = Map<String, dynamic>();
     String getPaymentsQuery =
         "SELECT * FROM `payment_logs` where doctor_id = $doctorId";
@@ -88,7 +87,7 @@ class LabDatabase {
   }
 
   static Future getDoctorAccountStatement(
-      String doctorId, bool forceReload) async {
+      String? doctorId, bool forceReload) async {
     drHasTransactionsThisMonth = true;
     if (entries.isNotEmpty && forceReload) {
       print("Statement already has data.");
@@ -122,15 +121,15 @@ class LabDatabase {
       // if payment fix the balance
       if (accountStatementEntry.credit != "N/A")
         accountStatementEntry.balance =
-            (double.parse(accountStatementEntry.balance) -
-                    double.parse(accountStatementEntry.credit))
+            (double.parse(accountStatementEntry.balance!) -
+                    double.parse(accountStatementEntry.credit!))
                 .toString();
 
       if (accountStatementEntry.caseId != "N/A")
         docCasesIds.add(accountStatementEntry.caseId);
 
       if (accountStatementEntry.paymentId != "N/A" && docPayments.isNotEmpty) {
-        String paymentNote = docPayments
+        String? paymentNote = docPayments
             .where((element) => element.id == accountStatementEntry.paymentId)
             .first
             .notes;
@@ -149,11 +148,11 @@ class LabDatabase {
     }
 
     accountStatementEntries.sort((a, b) {
-      return a.createdAt.compareTo(b.createdAt);
+      return a.createdAt!.compareTo(b.createdAt!);
     });
     if (accountStatementEntries
         .where(
-            (element) => element.createdAt.substring(2, 7) == currentYearMonth)
+            (element) => element.createdAt!.substring(2, 7) == currentYearMonth)
         .isEmpty) {
       drHasTransactionsThisMonth = false;
     }
@@ -194,7 +193,7 @@ class LabDatabase {
   }
 
   static Future getDoctorDiscounts() async {
-    Doctor doctor = getIt<SessionData>().doctor;
+    Doctor doctor = getIt<SessionData>().doctor!;
     var map = Map<String, dynamic>();
 
     String getDocDiscountsQuery =
@@ -207,19 +206,19 @@ class LabDatabase {
       var parsed = json.decode(response.body);
       for (int i = 0; i < parsed.length; i++) {
         Discount discount = Discount.fromJson(parsed[i]);
-        doctor.discounts[int.parse(discount.materialId)] = discount;
+        doctor.discounts[int.parse(discount.materialId!)] = discount;
       }
     }
     getIt<SessionData>().doctor = doctor;
   }
 
-  static Future getCaseJobs(String caseId) async {
+  static Future getCaseJobs(String? caseId) async {
     AccountStatementEntry requestedEntry = accountStatementEntries
         .where((element) => element.caseId == caseId)
         .first;
 
     // حالة عكس حركة
-    if (requestedEntry.patientName.contains("عكس ح"))
+    if (requestedEntry.patientName!.contains("عكس ح"))
       return await getReversedCaseJobs(requestedEntry);
 
     if (allCaseJobsList.isNotEmpty) {
@@ -238,29 +237,36 @@ class LabDatabase {
 
   static Future getAccountStatementTotals(Jiffy currentMonth) async {
     if (accountStatementEntries.isEmpty)
-      await getDoctorAccountStatement(getIt<SessionData>().doctor.id, false);
+      await getDoctorAccountStatement(getIt<SessionData>().doctor!.id, false);
 
     totals = StatementTotals();
+    AccountStatementEntry firstEntryOfTheMonth= AccountStatementEntry();
+    try{
+      AccountStatementEntry firstEntryOfTheMonth = accountStatementEntries
+          .where((element) =>
+      element.createdAt!.substring(2, 7) == currentMonth.format("yy-MM"))
+          .first;
+      if (firstEntryOfTheMonth.credit != "N/A")
+        totals.openingBalance = double.parse(firstEntryOfTheMonth.balance!) +
+            double.parse(firstEntryOfTheMonth.credit!);
+      else
+        totals.openingBalance = double.parse(firstEntryOfTheMonth.balance!) -
+            double.parse(firstEntryOfTheMonth.debit!);
+    } catch(e){
+      print("[getAccountStatementTotals] No first Entry of month found, month: "+currentMonth.toString());
+    }
 
-    AccountStatementEntry firstEntryOfTheMonth = accountStatementEntries
-        .where((element) =>
-            element.createdAt.substring(2, 7) == currentMonth.format("yy-MM"))
-        .first;
-    if (firstEntryOfTheMonth.credit != "N/A")
-      totals.openingBalance = double.parse(firstEntryOfTheMonth.balance) +
-          double.parse(firstEntryOfTheMonth.credit);
-    else
-      totals.openingBalance = double.parse(firstEntryOfTheMonth.balance) -
-          double.parse(firstEntryOfTheMonth.debit);
+
+
 
     accountStatementEntries
         .where((element) =>
-            element.createdAt.substring(2, 7) == currentMonth.format("yy-MM"))
+            element.createdAt!.substring(2, 7) == currentMonth.format("yy-MM"))
         .forEach((entry) {
       if (entry.credit != "N/A") {
-        totals.totalCredit += double.parse(entry.credit);
+        totals.totalCredit += double.parse(entry.credit!);
       } else if (entry.debit != "N/A") {
-        totals.totalDebit += double.parse(entry.debit);
+        totals.totalDebit += double.parse(entry.debit!);
       }
     });
     return totals;
@@ -309,7 +315,7 @@ class LabDatabase {
     await getMaterials();
   }
 
-  static Future getCase(String caseId) async {
+  static Future getCase(String? caseId) async {
     var map = Map<String, dynamic>();
 
     String getCaseQuery =

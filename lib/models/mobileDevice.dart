@@ -1,13 +1,13 @@
 class Device {
-  String id;
-  String deviceUID;
-  String platform;
-  String os;
-  String name;
-  String ip;
-  String docId;
-  String isAllowed;
-  String dateCreated;
+  String? id;
+  String? deviceUID;
+  String? platform;
+  String? os;
+  String? name;
+  String? ip;
+  String? docId;
+  String? isAllowed;
+  String? dateCreated;
 
   Device(
       {this.id,this.deviceUID, this.os, this.name,this.platform, this.ip, this.isAllowed,this.docId,this.dateCreated});

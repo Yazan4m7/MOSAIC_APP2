@@ -6,9 +6,9 @@ import 'package:reviews_slider/reviews_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FeedbackView extends StatefulWidget {
-  String caseId;
-  String patientName;
-  String doctorId;
+  String? caseId;
+  String? patientName;
+  String? doctorId;
   FeedbackView({this.caseId, this.patientName, this.doctorId});
   @override
   _FeedbackViewState createState() => _FeedbackViewState();
@@ -29,7 +29,7 @@ class _FeedbackViewState extends State<FeedbackView> {
             children: [
               SharedWidgets.getAppBarUI(
                 context,
-                _scaffoldKey,
+                _scaffoldKey as GlobalKey<ScaffoldState>,
                 "Provide Feedback",
               ),
               Center(

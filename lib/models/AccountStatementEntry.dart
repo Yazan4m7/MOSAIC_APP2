@@ -1,13 +1,13 @@
 class AccountStatementEntry {
-  String id;
-  String patientName;
-  String credit;
-  String debit;
-  String balance;
-  String createdAt;
-  String doctorId;
-  String caseId;
-  String paymentId;
+  String? id;
+  String? patientName;
+  String? credit;
+  String? debit;
+  String? balance;
+  String? createdAt;
+  String? doctorId;
+  String? caseId;
+  String? paymentId;
 
   @override
   String toString() {

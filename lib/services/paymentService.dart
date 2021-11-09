@@ -19,15 +19,15 @@ class PaymentService with ChangeNotifier {
     static initializePayment(double Amount,String cardNumber,String expiryDate,BuildContext context) async{
       cardNumber= cardNumber.replaceAll(" ", "");
         var key  = await getMOSAICkey();
-        CreditCard card =  CreditCard(cardNumber: cardNumber,expiryDate: expiryDate,doctorId: getIt<SessionData>().doctor.id.toString());
-        Global.prefs.setString("card",jsonEncode(CreditCard.toJson(card)));
+        CreditCard card =  CreditCard(cardNumber: cardNumber,expiryDate: expiryDate,doctorId: getIt<SessionData>().doctor!.id.toString());
+        Global.prefs!.setString("card",jsonEncode(CreditCard.toJson(card)));
         print("Set card in prefs : ${jsonEncode(CreditCard.toJson(card))}");
 
         var queryParameters = {
           'MOSAICKey' :  key.toString(),
           'cardNumber' : card.cardNumber,
           'expiryDate' : card.expiryDate,
-          'customerId': getIt<SessionData>().doctor.id,
+          'customerId': getIt<SessionData>().doctor!.id,
           'amount': Amount.toString(),
         };
         var uri =

@@ -17,7 +17,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  Timer _timer;
+  Timer? _timer;
   int _start = 30;
   bool _sendCodeEnabled = true;
   bool _keyboardVisible = false;
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void dispose() {
     if(_timer !=null)
-    _timer.cancel();
+    _timer!.cancel();
     super.dispose();
   }
 
@@ -81,19 +81,23 @@ class _LoginPageState extends State<LoginPage> {
         duration: Duration(milliseconds:600),
         curve: Curves.ease);
   }
-  String phoneNo, verificationId, smsCode;
+  String? phoneNo, verificationId, smsCode;
   TextEditingController phoneNoTxtController = TextEditingController();
   TextEditingController smsCodeTxtController = TextEditingController();
   ScrollController _scrollController = ScrollController();
   bool codeSent = false;
   GlobalKey formKey = GlobalKey();
+
+  static String? countryCode = WidgetsBinding.instance!.window.locale.countryCode;
+  String phoneCode = countryCode !='JO' ? "+44" : "+962";
   @override
   Widget build(BuildContext context) {
 
-    // print(MediaQuery.of(context).viewInsets.bottom);
-    double screenHeight = MediaQuery.of(context).size.height;
-    //double screenWidth = MediaQuery.of(context).size.width;
-    return MaterialApp(
+
+  // print(MediaQuery.of(context).viewInsets.bottom);
+  double screenHeight = MediaQuery.of(context).size.height;
+  //double screenWidth = MediaQuery.of(context).size.width;
+  return MaterialApp(
       theme: GlobalTheme.globalTheme,
       home:Scaffold (
         // resizeToAvoidBottomPadding: false,
@@ -154,14 +158,15 @@ class _LoginPageState extends State<LoginPage> {
                                         Expanded(
                                             flex: 3,
                                             child: TextFormField(
-                                              enabled: false,
+                                              onChanged: (value){phoneCode=value;print("phone code box changed : $phoneCode");},
+                                              enabled: true,
                                               decoration:
                                                   InputDecoration(
                                                     contentPadding: EdgeInsets.only(left:0,bottom: 0,top: 9,right: 0),
                                                     prefixIcon: const Icon(
                                                     Icons.phone,
                                                     color: Colors.black87,
-                                                  ),hintText: '+962',),
+                                                  ),hintText: phoneCode,),
                                             )),
                                         Expanded(
                                           flex: 7,
@@ -197,18 +202,16 @@ class _LoginPageState extends State<LoginPage> {
                                       if (codeSent) {
                                         // hide keyboard
                                         FocusScope.of(context).unfocus();
-                                        Global.prefs.setString("phoneNo", "+962"+ phoneNoTxtController.text);
+                                        Global.prefs!.setString("phoneNo", phoneCode+ phoneNoTxtController.text);
                                         AuthService().signInWithOTP(
-                                            '+962'+phoneNoTxtController.text,
+                                            phoneCode+phoneNoTxtController.text,
                                             smsCodeTxtController.text,
                                             verificationId);
                                       } else {
                                         startTimer();
-                                        print("Setting phone number ${"+962"+ phoneNoTxtController.text}");
-
-                                        Global.prefs.setString("phoneNo", "+962"+ phoneNoTxtController.text);
-
-                                        verifyPhone('+962'+phoneNoTxtController.text);
+                                        print("Setting phone number ${phoneCode+ phoneNoTxtController.text}");
+                                        Global.prefs!.setString("phoneNo", phoneCode+ phoneNoTxtController.text);
+                                        verifyPhone(phoneCode+phoneNoTxtController.text);
                                       }
                                     })),
                                 codeSent
@@ -230,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                                                             Text('RE-SEND CODE')),
                                                     onPressed: () {
                                                       print("Setting phone number ${"+962"+ phoneNoTxtController.text}");
-                                                      Global.prefs.setString("phoneNo", "+962"+ phoneNoTxtController.text);
+                                                      Global.prefs!.setString("phoneNo", "+962"+ phoneNoTxtController.text);
                                                       verifyPhone(
                                                          "+962"+ phoneNoTxtController
                                                               .text);
@@ -239,7 +242,11 @@ class _LoginPageState extends State<LoginPage> {
                                                 : RaisedButton(
                                                     child: Center(
                                                         child:
-                                                            Text('RE-SEND CODE')))
+                                                            Text('RE-SEND CODE')),
+
+                                            onPressed: (){
+                                          verifyPhone(phoneCode+phoneNoTxtController.text);
+                                        })
                                           ],
                                         ))
                                     : SizedBox(),
@@ -275,7 +282,7 @@ class _LoginPageState extends State<LoginPage> {
 
     };
 
-    final PhoneCodeSent smsSent = (String verId, [int forceResend]) {
+    final PhoneCodeSent smsSent = (String verId, [int? forceResend]) {
       this.verificationId = verId;
       setState(() {
         this.codeSent = true;
@@ -302,7 +309,7 @@ class _LoginPageState extends State<LoginPage> {
       height: 50.0,
       margin: EdgeInsets.all(10),
       child: RaisedButton(
-        onPressed: onPress,
+        onPressed: onPress as void Function()?,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
         padding: EdgeInsets.all(0.0),

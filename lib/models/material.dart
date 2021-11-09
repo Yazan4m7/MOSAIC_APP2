@@ -1,7 +1,7 @@
 class Material {
-  String id;
-  String name;
-  String price;
+  String? id;
+  String? name;
+  String? price;
 
   Material({this.id, this.name,this.price});
 

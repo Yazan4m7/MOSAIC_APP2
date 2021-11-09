@@ -12,18 +12,18 @@ import 'package:mosaic_doctors/shared/globalVariables.dart';
 import 'package:mosaic_doctors/views/labStatementMainScreen.dart';
 
 class Notifications {
-  static String month = '';
+  static String? month = '';
 
   /// To verify things are working, check out the native platform logs.
   static Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
     await Firebase.initializeApp();
     month = message.data['month'];
-    showLastMonthAccountStatement(month);
+    showLastMonthAccountStatement(month!);
   }
 
   /// Create a [AndroidNotificationChannel] for heads up notifications
-  static AndroidNotificationChannel channel;
+  static late AndroidNotificationChannel channel;
 
   /// Initialize the [FlutterLocalNotificationsPlugin] package.
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -38,7 +38,7 @@ class Notifications {
     channel = const AndroidNotificationChannel(
       'high_importance_channel', // id
       'High Importance Notifications', // title
-      'This channel is used for important notifications.', // description
+      // description
       importance: Importance.high,
     );
 
@@ -67,8 +67,8 @@ class Notifications {
     );
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification notification = message.notification;
-      AndroidNotification android = message.notification?.android;
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
         month = message.data['month'];
 
@@ -80,7 +80,7 @@ class Notifications {
               android: AndroidNotificationDetails(
                 channel.id,
                 channel.name,
-                channel.description,
+
                 // TODO add a proper drawable resource to android, for now using
                 //      one that already exists in example app.
                 icon: 'launch_background',
@@ -92,7 +92,7 @@ class Notifications {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       showLastMonthAccountStatement(message.data['month']);
     });
-    String phoneN = Global.prefs.getString("phoneNo");
+    String? phoneN = Global.prefs!.getString("phoneNo");
     if (Constants.debuggers.contains(phoneN)) {
       FirebaseMessaging.instance.subscribeToTopic('testing');
       print("Subscribed to testing topic");
@@ -102,8 +102,8 @@ class Notifications {
     }
   }
 
-  static Future onSelectNotification(String payload) async {
-    showLastMonthAccountStatement(month);
+  static Future onSelectNotification(String? payload) async {
+    showLastMonthAccountStatement(month!);
   }
 
   static Future showLastMonthAccountStatement(String month) async {

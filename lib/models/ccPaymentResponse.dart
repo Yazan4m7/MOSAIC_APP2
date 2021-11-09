@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 class CCPaymentResponse{
-  int transactionId;
-  bool isSuccess;
-  String message;
-  List<dynamic> errors;
+  int? transactionId;
+  bool? isSuccess;
+  String? message;
+  List<dynamic>? errors;
 
-  String errDescription;
+  String? errDescription;
   CCPaymentResponse({this.transactionId, this.isSuccess, this.message, this.errors,this.errDescription});
 
 
@@ -19,10 +19,10 @@ class CCPaymentResponse{
     print("jsonObj ${jsonObj['errors'].isEmpty}");
     print(jsonObj.containsValue(['errors']));
     return CCPaymentResponse(
-      transactionId : jsonObj['transactionId']==null? null:jsonObj['transactionId'] as int,
-      isSuccess : jsonObj['isSuccess']==null? "N/A":jsonObj['isSuccess'] as bool,
+      transactionId : jsonObj['transactionId']==null? null:jsonObj['transactionId'] as int?,
+      isSuccess : jsonObj['isSuccess']==null? "N/A" as bool?:jsonObj['isSuccess'] as bool?,
       message : jsonObj['message']==null? "N/A":jsonObj['message'],
-      errors : jsonObj['errors']==null? "N/A":(jsonObj['errors']),
+      errors : jsonObj['errors']==null? "N/A" as List<dynamic>?:(jsonObj['errors']),
 
       errDescription : jsonObj['errors'].isEmpty? "N/A" : jsonObj['errors'][0]['description']
     );

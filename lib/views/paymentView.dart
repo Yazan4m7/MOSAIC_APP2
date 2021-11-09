@@ -18,21 +18,21 @@ class PaymentView extends StatefulWidget {
 class _PaymentViewState extends State<PaymentView> {
   TextEditingController cardNumberTF = TextEditingController();
   TextEditingController expiryDateTF = TextEditingController();
-  CreditCard  cardInfo;
+  CreditCard?  cardInfo;
   TextEditingController amountTC = TextEditingController();
   var keyboardVisibilityController = KeyboardVisibilityController();
   bool _isProcessing = false;
   List<PopupMenuEntry<String>> options = [];
 
   getCard() async {
-    String creditCardAsString = Global.prefs.getString('card');
+    String? creditCardAsString = Global.prefs!.getString('card');
     print("Card from prefs as string : $creditCardAsString ");
     if(creditCardAsString!=null)
     cardInfo =   CreditCard.fromString(creditCardAsString);
     if(cardInfo!=null)
      setState(() {
-       cardNumberTF.text = cardInfo.cardNumber;
-       expiryDateTF.text = cardInfo.expiryDate;
+       cardNumberTF.text = cardInfo!.cardNumber!;
+       expiryDateTF.text = cardInfo!.expiryDate!;
      });
     }
 
@@ -56,7 +56,7 @@ class _PaymentViewState extends State<PaymentView> {
     //rowWidth = MediaQuery.of(context).size.width;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
-      appBar: _paymentViewAppBar(),
+      appBar: _paymentViewAppBar() as PreferredSizeWidget?,
 
       resizeToAvoidBottomInset: false,
 
