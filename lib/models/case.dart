@@ -1,22 +1,22 @@
 class Case {
-  String? id;
-  String? orderId;
-  String? patientName;
-  String? deliveryDate;
-  String? currentStatus;
-  String? doctorId;
-  String? createdBy;
-  String? createdAt;
+  String id;
+  String orderId;
+  String patientName;
+  String deliveryDate;
+  String currentStatus;
+  String doctorId;
+  String createdBy;
+  String createdAt;
 
   Case({
-    this.id,
-    this.orderId,
-    this.patientName,
-    this.deliveryDate,
-    this.currentStatus,
-    this.doctorId,
-    this.createdBy,
-    this.createdAt,
+    required this.id,
+    required this.orderId,
+    required this.patientName,
+    required this.deliveryDate,
+    required this.currentStatus,
+    required this.doctorId,
+    required this.createdBy,
+    required this.createdAt,
   });
 
   @override
@@ -34,7 +34,6 @@ class Case {
       createdBy: json['created_by'],
       createdAt: json['created_at'],
       deliveryDate: json['deliver_date'],
-
     );
   }
 }

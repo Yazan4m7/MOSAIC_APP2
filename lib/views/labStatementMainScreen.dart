@@ -92,9 +92,6 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   bool _bottomCountersBuilt = false;
   @override
   Widget build(BuildContext context) {
-    print("Doctor can create case : " +
-        (getIt<SessionData>().doctor!.canCreateCase == '1').toString());
-
     _setMonthsNavigationFlags();
     pdfTable.clear();
     _roundedBalanceBuilt = false;
@@ -340,6 +337,9 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
 
   Future? totals;
   Widget _buildBottomCounters(double? screenHeight, double? screenWidth) {
+    Locale locale = Localizations.localeOf(context);
+    var format = NumberFormat.simpleCurrency(locale: locale.toString());
+
     getAccountStatementTotals(currentMonth);
     return FutureBuilder(
         future: totals,
@@ -380,7 +380,9 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                       style:
                                           MyFontStyles.statementHeaderFontStyle(
                                               context)),
-                                  Text(" JOD")
+                                  Text(getIt<SessionData>().countryCode == "JO"
+                                      ? "JOD"
+                                      : format.currencySymbol)
                                 ],
                               ),
                             ],
@@ -399,7 +401,11 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                           MyFontStyles.statementHeaderFontStyle(
                                               context),
                                       textAlign: TextAlign.left),
-                                  Text(" JOD", style: TextStyle())
+                                  Text(
+                                      getIt<SessionData>().countryCode == "JO"
+                                          ? " JOD"
+                                          : ' ' + format.currencySymbol,
+                                      style: TextStyle())
                                 ],
                               ),
                             ],
@@ -422,7 +428,9 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                             Responsiveness.entryFontSize!.sp +
                                                 3,
                                       )),
-                                  Text(" JOD")
+                                  Text(getIt<SessionData>().countryCode == "JO"
+                                      ? " JOD"
+                                      : ' ' + format.currencySymbol)
                                 ],
                               ),
                             ],
@@ -576,7 +584,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                     ],
                   ),
                 ),
-                ('1' == '1')
+                (getIt<SessionData>().countryCode != "JO" &&
+                        getIt<SessionData>().doctor!.canCreateCase == '1')
                     ? Container(
                         margin:
                             EdgeInsets.symmetric(vertical: 0, horizontal: 0),
@@ -631,7 +640,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                             //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
                           },
                         ))
-                    : Text("Hi"),
+                    : SizedBox(),
                 Container(
                     decoration: BoxDecoration(
                       color: Colors.black87.withOpacity(0.8),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mosaic_doctors/models/case.dart';
 import 'package:mosaic_doctors/models/discount.dart';
 import 'package:mosaic_doctors/models/doctor.dart';
 import 'package:mosaic_doctors/models/job.dart';
@@ -14,30 +13,34 @@ import 'package:mosaic_doctors/shared/widgets.dart';
 import 'package:mosaic_doctors/views/feedback.dart';
 
 class CaseDetailsView extends StatefulWidget {
-  String? caseId;
-  String? patientName;
-  String? deliveryDate;
-  CaseDetailsView({this.caseId, this.patientName, this.deliveryDate});
+  String caseId;
+  String patientName;
+  String deliveryDate;
+  CaseDetailsView(
+      {required this.caseId,
+      required this.patientName,
+      required this.deliveryDate});
 
   @override
   _CaseDetailsViewState createState() => _CaseDetailsViewState();
 }
 
 class _CaseDetailsViewState extends State<CaseDetailsView> {
-  Future? jobsList;
-  late Case caseItem;
+  late Future<dynamic> jobsList;
+  late Future<dynamic> caseItem;
 
   getJobs() {
     jobsList = LabDatabase.getCaseJobs(widget.caseId);
-    getCase();
   }
-  getCase() async{
-    caseItem = await (LabDatabase.getCase(widget.caseId) as Future<Case>);
+
+  getCase() {
+    caseItem = (LabDatabase.getCase(widget.caseId));
   }
 
   @override
   void initState() {
     getJobs();
+    getCase();
     super.initState();
   }
 
@@ -54,8 +57,8 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
         child: Column(
           children: [
             SafeArea(
-                child: SharedWidgets.getAppBarUI(
-                    context, _scaffoldKey as GlobalKey<ScaffoldState>, "Case Info")),
+                child: SharedWidgets.getAppBarUI(context,
+                    _scaffoldKey as GlobalKey<ScaffoldState>, "Case Info")),
             SingleChildScrollView(
               child: Padding(
                 padding:
@@ -80,7 +83,7 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                             width: MediaQuery.of(context).size.width - 20,
                             alignment: Alignment.topLeft,
                             child: Text(
-                              widget.patientName ?? "N/A",
+                              widget.patientName,
                               style: MyFontStyles.doctorNameFontStyle(context)
                                   .copyWith(
                                       fontSize: 14,
@@ -100,7 +103,7 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                   child: Text(
                                       widget.deliveryDate == null
                                           ? "N/A "
-                                          : widget.deliveryDate!
+                                          : widget.deliveryDate
                                               .substring(0, 10),
                                       style: MyFontStyles
                                           .textValueheadingFontStyle(context)))
@@ -150,7 +153,7 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                         height: screenHeight / 3,
                         child: FutureBuilder(
                           future: jobsList,
-                          builder: (context,AsyncSnapshot projectSnap) {
+                          builder: (context, AsyncSnapshot projectSnap) {
                             switch (projectSnap.connectionState) {
                               case ConnectionState.none:
                                 return SharedWidgets.loadingCircle(
@@ -188,7 +191,8 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                     Job job = projectSnap.data[index];
 
                                     String numOfUnits =
-                                        (','.allMatches(job.unitNum!).length + 1)
+                                        (','.allMatches(job.unitNum!).length +
+                                                1)
                                             .toString();
 
                                     double unitPriceAfterDiscount =
@@ -201,13 +205,13 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                     if (doctor!.discounts[
                                             int.parse(job.materialId!)] !=
                                         null) {
-                                      Discount unitDiscount = doctor
-                                          .discounts[int.parse(job.materialId!)]!;
+                                      Discount unitDiscount = doctor.discounts[
+                                          int.parse(job.materialId!)]!;
 
                                       if (unitDiscount.type == '0') {
                                         // discount is fixed
-                                        discount =
-                                            double.parse(unitDiscount.discount!);
+                                        discount = double.parse(
+                                            unitDiscount.discount!);
                                       } else {
                                         discount = ((double.parse(
                                                     unitDiscount.discount!) /
@@ -219,7 +223,8 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                                 .price!));
                                       }
                                     }
-                                    unitPriceAfterDiscount = unitPriceAfterDiscount - discount;
+                                    unitPriceAfterDiscount =
+                                        unitPriceAfterDiscount - discount;
                                     double priceAfterDiscount =
                                         double.parse(numOfUnits) *
                                             unitPriceAfterDiscount;
@@ -286,37 +291,42 @@ class _CaseDetailsViewState extends State<CaseDetailsView> {
                                     );
                                   },
                                 ),
-                                Positioned(
-                                  bottom: 10,
-                                  left: 120.w,
-                                  right: 120.w,
-                                  child: FlatButton(
-                                    color: Colors.black87,
-                                    onPressed: () async {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FeedbackView(
-                                                    caseId: widget.caseId,
-                                                    patientName:
-                                                        widget.patientName,
-                                                    doctorId: doctor!.id,
-                                                  )));
-                                    },
-                                    shape: StadiumBorder(),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 0.0, vertical: 12.0),
-                                      child: caseItem.patientName!.contains("عكس ح") ? SizedBox(): Text(
-                                        "PROVIDE FEEDBACK",
-                                        softWrap:false,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 50.0.sp),
-                                      ),
-                                    ),
-                                  ),
-                                )
+                                (widget.patientName.contains("عكس ح") ||
+                                        widget.patientName.contains("تعديل") ||
+                                        widget.patientName.contains("تصفي"))
+                                    ? SizedBox()
+                                    : Positioned(
+                                        bottom: 10,
+                                        left: 120.w,
+                                        right: 120.w,
+                                        child: FlatButton(
+                                          color: Colors.black87,
+                                          onPressed: () async {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FeedbackView(
+                                                          caseId: widget.caseId,
+                                                          patientName: widget
+                                                              .patientName,
+                                                          doctorId: doctor!.id,
+                                                        )));
+                                          },
+                                          shape: StadiumBorder(),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 0.0,
+                                                vertical: 12.0),
+                                            child: Text(
+                                              "PROVIDE FEEDBACK",
+                                              softWrap: false,
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 50.0.sp),
+                                            ),
+                                          ),
+                                        ),
+                                      )
                               ],
                             );
                           },

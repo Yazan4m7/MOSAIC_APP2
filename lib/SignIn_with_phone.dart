@@ -161,6 +161,10 @@ class _LoginPageState extends State<LoginPage> {
                                               readOnly: true,
                                               onTap: () {
                                                 showCountryPicker(
+                                                    countryFilter: <String>[
+                                                      'JO',
+                                                      'UK'
+                                                    ],
                                                     context: context,
                                                     showPhoneCode: true,
                                                     countryListTheme:
