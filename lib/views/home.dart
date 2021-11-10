@@ -145,7 +145,9 @@ class _homeViewState extends State<HomeView> {
                             child: Text(
                               getIt<SessionData>().doctor!.id == "103"
                                   ? "" + doctorName!
-                                  : "د. " + doctorName!,
+                                  : (getIt<SessionData>().countryCode == "JO"
+                                      ? "د. " + doctorName!
+                                      : "Dr. " + doctorName!),
                               style: MyFontStyles.doctorNameFontStyle(context),
                             )),
                         SizedBox(

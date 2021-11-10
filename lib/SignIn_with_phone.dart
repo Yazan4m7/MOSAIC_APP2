@@ -1,15 +1,16 @@
 import 'dart:async';
+
+import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:mosaic_doctors/models/sessionData.dart';
 import 'package:mosaic_doctors/services/auth_service.dart';
 import 'package:mosaic_doctors/shared/globalVariables.dart';
 import 'package:mosaic_doctors/shared/locator.dart';
 import 'package:mosaic_doctors/shared/styles.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:mosaic_doctors/shared/widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -36,10 +37,10 @@ class _LoginPageState extends State<LoginPage> {
             timer.cancel();
           });
         } else {
-          if(mounted)
-          setState(() {
-            _start--;
-          });
+          if (mounted)
+            setState(() {
+              _start--;
+            });
         }
       },
     );
@@ -47,40 +48,36 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    if(_timer !=null)
-    _timer!.cancel();
+    if (_timer != null) _timer!.cancel();
     super.dispose();
   }
 
   @override
   void initState() {
     keyboardVisibilityController.onChange.listen((bool visible) {
-      if(mounted)
-      setState(() {
-        _keyboardVisible =  visible;
-        if(visible)
-        _scrollToTop();
-        else
-          _scrollToBottom();
-      });
+      if (mounted)
+        setState(() {
+          _keyboardVisible = visible;
+          if (visible)
+            _scrollToTop();
+          else
+            _scrollToBottom();
+        });
     });
     super.initState();
   }
 
-   _scrollToTop() async{
+  _scrollToTop() async {
+    await Future.delayed(Duration(milliseconds: 300));
+    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 600), curve: Curves.ease);
+  }
 
-     await Future.delayed(Duration(milliseconds: 300));
-     _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds:600),
-        curve: Curves.ease);
+  _scrollToBottom() {
+    _scrollController.animateTo(_scrollController.position.minScrollExtent,
+        duration: Duration(milliseconds: 600), curve: Curves.ease);
   }
-  _scrollToBottom(){
-    _scrollController.animateTo(
-        _scrollController.position.minScrollExtent ,
-        duration: Duration(milliseconds:600),
-        curve: Curves.ease);
-  }
+
   String? phoneNo, verificationId, smsCode;
   TextEditingController phoneNoTxtController = TextEditingController();
   TextEditingController smsCodeTxtController = TextEditingController();
@@ -88,18 +85,17 @@ class _LoginPageState extends State<LoginPage> {
   bool codeSent = false;
   GlobalKey formKey = GlobalKey();
 
-  static String? countryCode = WidgetsBinding.instance!.window.locale.countryCode;
-  String phoneCode = countryCode !='JO' ? "+44" : "+962";
+  static String? countryCode =
+      WidgetsBinding.instance!.window.locale.countryCode;
+  String phoneCode = countryCode != 'JO' ? "+44" : "+962";
   @override
   Widget build(BuildContext context) {
-
-
-  // print(MediaQuery.of(context).viewInsets.bottom);
-  double screenHeight = MediaQuery.of(context).size.height;
-  //double screenWidth = MediaQuery.of(context).size.width;
-  return MaterialApp(
+    // print(MediaQuery.of(context).viewInsets.bottom);
+    double screenHeight = MediaQuery.of(context).size.height;
+    //double screenWidth = MediaQuery.of(context).size.width;
+    return MaterialApp(
       theme: GlobalTheme.globalTheme,
-      home:Scaffold (
+      home: Scaffold(
         // resizeToAvoidBottomPadding: false,
         resizeToAvoidBottomInset: false,
         body: Container(
@@ -113,7 +109,9 @@ class _LoginPageState extends State<LoginPage> {
           child: Stack(
             children: [
               Positioned(
-                bottom:_keyboardVisible? MediaQuery.of(context).viewInsets.bottom *-1 -100 :  -100,
+                bottom: _keyboardVisible
+                    ? MediaQuery.of(context).viewInsets.bottom * -1 - 100
+                    : -100,
                 right: -110,
                 child: Container(
                   alignment: Alignment(2.5, 5),
@@ -143,39 +141,103 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 Divider(),
                                 Padding(
-                                  padding:  EdgeInsets.only(left: 50.0, right: 50.0),
+                                  padding:
+                                      EdgeInsets.only(left: 50.0, right: 50.0),
                                   child: Text(
                                     getIt<SessionData>().loginWelcomeMessage,
-                                    style: TextStyle(color: Colors.red,fontSize: 12),
+                                    style: TextStyle(
+                                        color: Colors.red, fontSize: 12),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
                                 Padding(
-                                    padding:
-                                        EdgeInsets.only(left: 30.0, right: 30.0),
+                                    padding: EdgeInsets.only(
+                                        left: 30.0, right: 30.0),
                                     child: Row(
                                       children: [
                                         Expanded(
                                             flex: 3,
                                             child: TextFormField(
-                                              onChanged: (value){phoneCode=value;print("phone code box changed : $phoneCode");},
+                                              readOnly: true,
+                                              onTap: () {
+                                                showCountryPicker(
+                                                    context: context,
+                                                    showPhoneCode: true,
+                                                    countryListTheme:
+                                                        CountryListThemeData(
+                                                      flagSize: 25,
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      textStyle: TextStyle(
+                                                          fontSize: 16,
+                                                          color:
+                                                              Colors.blueGrey),
+                                                      //Optional. Sets the border radius for the bottomsheet.
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(
+                                                                20.0),
+                                                        topRight:
+                                                            Radius.circular(
+                                                                20.0),
+                                                      ),
+                                                      //Optional. Styles the search field.
+                                                      inputDecoration:
+                                                          InputDecoration(
+                                                        labelText: 'Search',
+                                                        hintText:
+                                                            'Start typing to search',
+                                                        prefixIcon: const Icon(
+                                                            Icons.search),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: const Color(
+                                                                    0xFF8C98A8)
+                                                                .withOpacity(
+                                                                    0.2),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    onSelect:
+                                                        (Country country) =>
+                                                            setState(() {
+                                                              phoneCode = '+' +
+                                                                  country
+                                                                      .phoneCode;
+                                                            }));
+                                              },
+                                              onChanged: (value) {
+                                                print(
+                                                    "phone code box changed : $phoneCode");
+                                              },
                                               enabled: true,
-                                              decoration:
-                                                  InputDecoration(
-                                                    contentPadding: EdgeInsets.only(left:0,bottom: 0,top: 9,right: 0),
-                                                    prefixIcon: const Icon(
-                                                    Icons.phone,
-                                                    color: Colors.black87,
-                                                  ),hintText: phoneCode,),
+                                              decoration: InputDecoration(
+                                                contentPadding: EdgeInsets.only(
+                                                    left: 0,
+                                                    bottom: 0,
+                                                    top: 9,
+                                                    right: 0),
+                                                prefixIcon: const Icon(
+                                                  Icons.phone,
+                                                  color: Colors.black87,
+                                                ),
+                                                hintText: phoneCode,
+                                              ),
                                             )),
                                         Expanded(
                                           flex: 7,
                                           child: TextFormField(
-
                                             keyboardType: TextInputType.phone,
                                             decoration: InputDecoration(
-
-                                              contentPadding: EdgeInsets.only(left:15,bottom: 0,top: 0,right: 0),
+                                                contentPadding: EdgeInsets.only(
+                                                    left: 15,
+                                                    bottom: 0,
+                                                    top: 0,
+                                                    right: 0),
                                                 hintText: 'Phone number'),
                                             controller: phoneNoTxtController,
                                           ),
@@ -189,29 +251,38 @@ class _LoginPageState extends State<LoginPage> {
                                         child: TextFormField(
                                           focusNode: focusNode,
                                           keyboardType: TextInputType.phone,
-                                          decoration:
-                                              InputDecoration(hintText: 'OTP code'),
+                                          decoration: InputDecoration(
+                                              hintText: 'OTP code'),
                                           controller: smsCodeTxtController,
                                         ))
                                     : Container(),
                                 Padding(
-                                    padding:
-                                        EdgeInsets.only(left: 50.0, right: 50.0),
+                                    padding: EdgeInsets.only(
+                                        left: 50.0, right: 50.0),
                                     child: _buildButton(
                                         codeSent ? 'LOG IN' : 'SEND CODE', () {
                                       if (codeSent) {
                                         // hide keyboard
                                         FocusScope.of(context).unfocus();
-                                        Global.prefs!.setString("phoneNo", phoneCode+ phoneNoTxtController.text);
+                                        Global.prefs!.setString(
+                                            "phoneNo",
+                                            phoneCode +
+                                                phoneNoTxtController.text);
                                         AuthService().signInWithOTP(
-                                            phoneCode+phoneNoTxtController.text,
+                                            phoneCode +
+                                                phoneNoTxtController.text,
                                             smsCodeTxtController.text,
                                             verificationId);
                                       } else {
                                         startTimer();
-                                        print("Setting phone number ${phoneCode+ phoneNoTxtController.text}");
-                                        Global.prefs!.setString("phoneNo", phoneCode+ phoneNoTxtController.text);
-                                        verifyPhone(phoneCode+phoneNoTxtController.text);
+                                        print(
+                                            "Setting phone number ${phoneCode + phoneNoTxtController.text}");
+                                        Global.prefs!.setString(
+                                            "phoneNo",
+                                            phoneCode +
+                                                phoneNoTxtController.text);
+                                        verifyPhone(phoneCode +
+                                            phoneNoTxtController.text);
                                       }
                                     })),
                                 codeSent
@@ -229,24 +300,30 @@ class _LoginPageState extends State<LoginPage> {
                                             !_sendCodeEnabled
                                                 ? RaisedButton(
                                                     child: Center(
-                                                        child:
-                                                            Text('RE-SEND CODE')),
+                                                        child: Text(
+                                                            'RE-SEND CODE')),
                                                     onPressed: () {
-                                                      print("Setting phone number ${"+962"+ phoneNoTxtController.text}");
-                                                      Global.prefs!.setString("phoneNo", "+962"+ phoneNoTxtController.text);
-                                                      verifyPhone(
-                                                         "+962"+ phoneNoTxtController
+                                                      print(
+                                                          "Setting phone number ${phoneCode + phoneNoTxtController.text}");
+                                                      Global.prefs!.setString(
+                                                          "phoneNo",
+                                                          phoneCode +
+                                                              phoneNoTxtController
+                                                                  .text);
+                                                      verifyPhone(phoneCode +
+                                                          phoneNoTxtController
                                                               .text);
                                                       startTimer();
                                                     })
                                                 : RaisedButton(
                                                     child: Center(
-                                                        child:
-                                                            Text('RE-SEND CODE')),
-
-                                            onPressed: (){
-                                          verifyPhone(phoneCode+phoneNoTxtController.text);
-                                        })
+                                                        child: Text(
+                                                            'RE-SEND CODE')),
+                                                    onPressed: () {
+                                                      verifyPhone(phoneCode +
+                                                          phoneNoTxtController
+                                                              .text);
+                                                    })
                                           ],
                                         ))
                                     : SizedBox(),
@@ -277,9 +354,8 @@ class _LoginPageState extends State<LoginPage> {
     };
 
     final PhoneVerificationFailed verificationfailed =
-        (FirebaseAuthException  authException) {
-          SharedWidgets.showMOSAICDialog(authException.message, context);
-
+        (FirebaseAuthException authException) {
+      SharedWidgets.showMOSAICDialog(authException.message, context);
     };
 
     final PhoneCodeSent smsSent = (String verId, [int? forceResend]) {
@@ -334,5 +410,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
 }

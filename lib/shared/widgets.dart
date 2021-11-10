@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:marquee/marquee.dart';
 import 'package:mosaic_doctors/shared/customDialogBox.dart';
-
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'font_styles.dart';
 
 class SharedWidgets {
   static Widget getAppBarUI(
       BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, String title,
-      [Widget? leftAppbarWidget, Function? onBackButtonTap, Color? backgroundColor, double? shadowOpacity]) {
+      [Widget? leftAppbarWidget,
+      Function? onBackButtonTap,
+      Color? backgroundColor,
+      double? shadowOpacity]) {
     return Container(
       height: AppBar().preferredSize.height,
       decoration: BoxDecoration(
-        color: backgroundColor?? Colors.transparent,
+        color: backgroundColor ?? Colors.transparent,
         boxShadow: <BoxShadow>[
           BoxShadow(
-              color:  Colors.grey.withOpacity(shadowOpacity?? 0.0),
+              color: Colors.grey.withOpacity(shadowOpacity ?? 0.0),
               offset: const Offset(0, 2),
               blurRadius: 8.0),
         ],
@@ -38,12 +40,9 @@ class SharedWidgets {
                       Navigator.pop(context);
                     },
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 5.0, top: 10, bottom: 10, right: 10),
-                  child: onBackButtonTap == null
-                      ? Icon(Icons.arrow_back)
-                      : Icon(Icons.clear_rounded),
-                ),
+                    padding: const EdgeInsets.only(
+                        left: 5.0, top: 10, bottom: 10, right: 10),
+                    child: Icon(Icons.arrow_back)),
               ),
             ),
           ),
@@ -233,9 +232,12 @@ class SharedWidgets {
                               'assets/images/NB_logo.png',
                               width: 180.w,
                             ),
-                            SizedBox(width: 15.w,),
+                            SizedBox(
+                              width: 15.w,
+                            ),
                             Text("IMPLENTS STATEMENT",
-                                style: MyFontStyles.titleBlackFontStyle(context).copyWith(fontSize: 48.0.sp)),
+                                style: MyFontStyles.titleBlackFontStyle(context)
+                                    .copyWith(fontSize: 48.0.sp)),
                           ],
                         ),
                       ],
@@ -291,7 +293,8 @@ class SharedWidgets {
         });
   }
 
-  static Widget TextWidget({required String text, TextStyle? style, required int maxChars}) {
+  static Widget TextWidget(
+      {required String text, TextStyle? style, required int maxChars}) {
     if (text.length > maxChars)
       return Marquee(
         scrollAxis: Axis.horizontal,

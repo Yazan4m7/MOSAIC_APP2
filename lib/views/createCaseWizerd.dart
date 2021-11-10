@@ -34,48 +34,29 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController stumpShade = TextEditingController();
   TextEditingController vitaClassic = TextEditingController();
   TextEditingController master3D = TextEditingController();
-
+  TextEditingController notes = TextEditingController();
   int? translucency = -1;
   int? surfaceTexture = -1;
   bool studyModels = false;
 
-  GroupController miscellaneous = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController prosthetics = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController crownBridgeMetalFree = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController enclosedItems = GroupController(
-    isMultipleSelection: true,
-  );
+  GroupController miscellaneous = GroupController(isMultipleSelection: true);
+  GroupController prosthetics = GroupController(isMultipleSelection: true);
+  GroupController crownBridgeMetalFree =
+      GroupController(isMultipleSelection: true);
+  GroupController enclosedItems = GroupController(isMultipleSelection: true);
+  GroupController crownBridgeMetalRestoration =
+      GroupController(isMultipleSelection: true);
+  GroupController implantWorkMetalFree =
+      GroupController(isMultipleSelection: true);
+  GroupController implantWorkMetalRestoration =
+      GroupController(isMultipleSelection: true);
+  GroupController implantWorkAllOn46 =
+      GroupController(isMultipleSelection: true);
+  GroupController selectedUnitsUR = GroupController(isMultipleSelection: true);
+  GroupController selectedUnitsUL = GroupController(isMultipleSelection: true);
+  GroupController selectedUnitsLL = GroupController(isMultipleSelection: true);
+  GroupController selectedUnitsLR = GroupController(isMultipleSelection: true);
 
-  GroupController crownBridgeMetalRestoration = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController implantWorkMetalFree = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController implantWorkMetalRestoration = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController implantWorkAllOn46 = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController selectedUnitsUR = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController selectedUnitsUL = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController selectedUnitsLL = GroupController(
-    isMultipleSelection: true,
-  );
-  GroupController selectedUnitsLR = GroupController(
-    isMultipleSelection: true,
-  );
   DateTime selectedDate = DateTime.now();
   int currentPage = 0;
   GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -88,11 +69,10 @@ class _RegisterFormState extends State<RegisterForm> {
   bool uploadedAFile = false;
   String? filePathOnServer = "null";
   static const Color TF_BG_COLOR = Colors.white;
+  int filesUploaded = 0;
   UKCase caseInfoHolder = UKCase();
   @override
   void initState() {
-    super.initState();
-
     /// Attach a listener which will update the state and refresh the page index
     _formsPageViewController.addListener(() {
       try {
@@ -105,8 +85,12 @@ class _RegisterFormState extends State<RegisterForm> {
         print("Page index not updated");
       }
     });
+    super.initState();
   }
 
+  final fontSize = 55.sp;
+  final tfSize = 150.h;
+  var keyboardVisibilityController = KeyboardVisibilityController();
   @override
   void dispose() {
     _formsPageViewController.dispose();
@@ -117,8 +101,9 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height - 350.h;
-
+    filesUploaded = 0;
     refillLists();
+
     _forms = [
       WillPopScope(
           onWillPop: () => Future.sync(this.onWillPop),
@@ -165,12 +150,11 @@ class _RegisterFormState extends State<RegisterForm> {
           width: screenWidth,
           height: screenHeight,
           child: Scaffold(
-            body: _attachmentsAndNotes(context),
+            body: _attachments(context),
           ),
         ),
       ),
     ];
-
     return MaterialApp(
       localizationsDelegates: [
         GlobalWidgetsLocalizations.delegate,
@@ -189,12 +173,15 @@ class _RegisterFormState extends State<RegisterForm> {
                     _scaffoldKey as GlobalKey<ScaffoldState>,
                     "NEW CASE WIZARD (${currentPage + 1}/5)",
                     null,
-                    null,
+                    currentPage < 1
+                        ? () {
+                            Navigator.of(context).pop();
+                          }
+                        : _previousFormStep,
                     Colors.white,
                     0.3)),
             resizeToAvoidBottomInset: false,
             body: Stack(
-              //mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width,
@@ -243,7 +230,11 @@ class _RegisterFormState extends State<RegisterForm> {
                           borderRadius: BorderRadius.all(Radius.zero))),
                     ),
                     onPressed: () {
-                      _previousFormStep();
+                      if (currentPage == 0)
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => LabStatementMainScreen()));
+                      else
+                        _previousFormStep();
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -297,22 +288,19 @@ class _RegisterFormState extends State<RegisterForm> {
                         master3D.text,
                         translucency.toString(),
                         surfaceTexture.toString(),
-                        enclosedItems.selectedItem == null
-                            ? []
-                            : enclosedItems.selectedItem,
-                        miscellaneous.selectedItem == null
-                            ? []
-                            : miscellaneous.selectedItem,
-                        prosthetics.selectedItem,
-                        crownBridgeMetalFree.selectedItem,
-                        crownBridgeMetalRestoration.selectedItem,
-                        implantWorkMetalFree.selectedItem,
-                        implantWorkMetalRestoration.selectedItem,
-                        implantWorkAllOn46.selectedItem,
-                        selectedUnitsUL.selectedItem,
-                        selectedUnitsUR.selectedItem,
-                        selectedUnitsLL.selectedItem,
-                        selectedUnitsLR.selectedItem);
+                        caseInfoHolder.enclosedItems,
+                        caseInfoHolder.miscellaneous,
+                        caseInfoHolder.prosthetics,
+                        caseInfoHolder.crownBridgeMetalFree,
+                        caseInfoHolder.crownBridgeMetalRestoration,
+                        caseInfoHolder.implantWorkMetalFree,
+                        caseInfoHolder.implantWorkMetalRestoration,
+                        caseInfoHolder.implantWorkAllOn46,
+                        caseInfoHolder.selectedUnitsUL,
+                        caseInfoHolder.selectedUnitsUR,
+                        caseInfoHolder.selectedUnitsLL,
+                        caseInfoHolder.selectedUnitsLR,
+                        notes.text);
                     if (currentCaseId == 'null') return;
                   }
                 },
@@ -344,25 +332,30 @@ class _RegisterFormState extends State<RegisterForm> {
       duration: Duration(milliseconds: 300),
       curve: Curves.ease,
     );
+    currentPage++;
     setState(() {});
   }
 
-  void _previousFormStep() {
+  _previousFormStep() {
     _formsPageViewController.previousPage(
       duration: Duration(milliseconds: 300),
       curve: Curves.ease,
     );
+    currentPage--;
     setState(() {});
   }
 
   bool onWillPop() {
     if (_formsPageViewController.page!.round() ==
-        _formsPageViewController.initialPage) return true;
-    _formsPageViewController.previousPage(
-      duration: Duration(milliseconds: 300),
-      curve: Curves.ease,
-    );
-
+        _formsPageViewController.initialPage) {
+      _formsPageViewController.previousPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.ease,
+      );
+      print("if");
+    } else {
+      print("else");
+    }
     return false;
   }
 
@@ -370,46 +363,58 @@ class _RegisterFormState extends State<RegisterForm> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("CASE INFORMATION 1"),
+        title: Text(
+          "CASE INFORMATION 1",
+          style: TextStyle(fontSize: fontSize),
+        ),
         backgroundColor: Colors.blueAccent,
       ),
       body: SingleChildScrollView(
         child: Column(children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: patientName,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(),
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: patientName,
+                style: TextStyle(
+                  fontSize: 15.0,
                 ),
-                labelText: "Patient Name",
-                labelStyle: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "Patient Name",
+                  labelStyle: TextStyle(fontSize: 15.0),
+                ),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: address,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(),
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: address,
+                style: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "Address",
+                  labelStyle: TextStyle(fontSize: 15.0),
                 ),
-                labelText: "Address",
-                labelStyle: TextStyle(fontSize: 15.0),
               ),
             ),
           ),
           Container(
+            height: tfSize * 1.3,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: DateTimePicker(
@@ -446,6 +451,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           Container(
+            height: tfSize * 1.3,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: DateTimePicker(
@@ -483,62 +489,74 @@ class _RegisterFormState extends State<RegisterForm> {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: tel,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.blue,
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: tel,
+                style: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.blue,
+                    ),
                   ),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(
-                    color: Color.fromARGB(255, 51, 204, 255),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(255, 51, 204, 255),
+                    ),
                   ),
+                  labelText: "Telephone",
+                  labelStyle: TextStyle(fontSize: 15.0),
                 ),
-                labelText: "Telephone",
-                labelStyle: TextStyle(fontSize: 15.0),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: email,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(),
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: email,
+                style: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "E-mail",
+                  labelStyle: TextStyle(fontSize: 15.0),
                 ),
-                labelText: "E-mail",
-                labelStyle: TextStyle(fontSize: 15.0),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: jobNo,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(),
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: jobNo,
+                style: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "Job no.",
+                  labelStyle: TextStyle(fontSize: 15.0),
                 ),
-                labelText: "Job no.",
-                labelStyle: TextStyle(fontSize: 15.0),
               ),
             ),
           ),
+          SizedBox(
+            height: 100.h,
+          )
         ]),
       ),
     );
@@ -548,65 +566,78 @@ class _RegisterFormState extends State<RegisterForm> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("CASE INFORMATION 2"),
+        title: Text(
+          "CASE INFORMATION 2",
+          style: TextStyle(fontSize: fontSize),
+        ),
         backgroundColor: Colors.blueAccent,
       ),
       body: SingleChildScrollView(
         child: Column(children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: stumpShade,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(),
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: stumpShade,
+                style: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "Stump Shade",
+                  labelStyle: TextStyle(fontSize: 15.0),
                 ),
-                labelText: "Stump Shade",
-                labelStyle: TextStyle(fontSize: 15.0),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: vitaClassic,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(),
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: vitaClassic,
+                style: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "Vita Classic",
+                  labelStyle: TextStyle(fontSize: 15.0),
                 ),
-                labelText: "Vita Classic",
-                labelStyle: TextStyle(fontSize: 15.0),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextFormField(
-              controller: master3D,
-              style: TextStyle(fontSize: 15.0),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: TF_BG_COLOR,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(),
+            child: Container(
+              height: tfSize,
+              child: TextFormField(
+                controller: master3D,
+                style: TextStyle(fontSize: 15.0),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: TF_BG_COLOR,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "3D Master",
+                  labelStyle: TextStyle(fontSize: 15.0),
                 ),
-                labelText: "3D Master",
-                labelStyle: TextStyle(fontSize: 15.0),
               ),
             ),
           ),
           Stack(
             children: <Widget>[
               Container(
+                height: tfSize,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   //mainAxisSize: MainAxisSize.max,
@@ -676,7 +707,6 @@ class _RegisterFormState extends State<RegisterForm> {
                   ],
                 ),
                 width: double.infinity,
-                height: 60,
                 margin: EdgeInsets.fromLTRB(10, 20, 20, 10),
                 padding: EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
@@ -771,7 +801,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   ],
                 ),
                 width: double.infinity,
-                height: 60,
+                height: tfSize,
                 margin: EdgeInsets.fromLTRB(10, 20, 20, 10),
                 padding: EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
@@ -794,48 +824,52 @@ class _RegisterFormState extends State<RegisterForm> {
                   )),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
-            child: SimpleGroupedCheckbox<String>(
-              controller: enclosedItems,
-              itemsTitle: [
-                'Photos via E-mail',
-                'L. Impression',
-                'U. Impression',
-                'Bite Registration',
-                'Facebow included',
-                'L. Model',
-                'U. Model',
-                'Implant Components',
-                'Analogs'
-              ],
-              values: [
-                'Photos via E-mail',
-                'L. Impression',
-                'U. Impression',
-                'Bite Registration',
-                'Facebow included',
-                'L. Model',
-                'U. Model',
-                'Implant Components',
-                'Analogs'
-              ],
-              groupStyle: GroupStyle(
-                activeColor: Colors.green,
-                groupTitleStyle: TextStyle(
-                    color: expandableColor, fontWeight: FontWeight.bold),
+          Container(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
+              child: Container(
+                child: SimpleGroupedCheckbox<String>(
+                  controller: enclosedItems,
+                  itemsTitle: [
+                    'Photos via E-mail',
+                    'L. Impression',
+                    'U. Impression',
+                    'Bite Registration',
+                    'Facebow included',
+                    'L. Model',
+                    'U. Model',
+                    'Implant Components',
+                    'Analogs'
+                  ],
+                  values: [
+                    'Photos via E-mail',
+                    'L. Impression',
+                    'U. Impression',
+                    'Bite Registration',
+                    'Facebow included',
+                    'L. Model',
+                    'U. Model',
+                    'Implant Components',
+                    'Analogs'
+                  ],
+                  groupStyle: GroupStyle(
+                    activeColor: Colors.green,
+                    groupTitleStyle: TextStyle(
+                        color: expandableColor, fontWeight: FontWeight.bold),
+                  ),
+                  groupTitle: "ENCLOSED ITEMS",
+                  checkFirstElement: false,
+                  helperGroupTitle: true,
+                  onItemSelected: (data) {
+                    caseInfoHolder.enclosedItems = data;
+                  },
+                  isExpandableTitle: true,
+                ),
               ),
-              groupTitle: "ENCLOSED ITEMS",
-              checkFirstElement: false,
-              helperGroupTitle: true,
-              onItemSelected: (data) {
-                caseInfoHolder.enclosedItems = data;
-              },
-              isExpandableTitle: true,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
             child: SimpleGroupedCheckbox<String>(
               controller: miscellaneous,
               itemsTitle: [
@@ -870,6 +904,9 @@ class _RegisterFormState extends State<RegisterForm> {
               isExpandableTitle: true,
             ),
           ),
+          SizedBox(
+            height: 100.h,
+          )
         ]),
       ),
     );
@@ -879,13 +916,16 @@ class _RegisterFormState extends State<RegisterForm> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("CASE INFORMATION 3"),
+        title: Text(
+          "CASE INFORMATION 3",
+          style: TextStyle(fontSize: fontSize),
+        ),
         backgroundColor: Colors.blueAccent,
       ),
       body: SingleChildScrollView(
         child: Column(children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
             child: SimpleGroupedCheckbox<String>(
               controller: prosthetics,
               itemsTitle: ['Special Tray', 'Wax tray', 'Try-in', 'Finish'],
@@ -905,7 +945,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
             child: SimpleGroupedCheckbox<String>(
               controller: crownBridgeMetalFree,
               itemsTitle: [
@@ -943,7 +983,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
             child: SimpleGroupedCheckbox<String>(
               controller: crownBridgeMetalRestoration,
               itemsTitle: [
@@ -975,7 +1015,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
             child: SimpleGroupedCheckbox<String>(
               controller: implantWorkMetalFree,
               itemsTitle: [
@@ -1005,7 +1045,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
             child: SimpleGroupedCheckbox<String>(
               controller: implantWorkMetalRestoration,
               itemsTitle: [
@@ -1035,7 +1075,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(10, 1, 20, 1),
             child: SimpleGroupedCheckbox<String>(
               controller: implantWorkAllOn46,
               itemsTitle: [
@@ -1069,9 +1109,13 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Widget _teethSelection(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         centerTitle: true,
-        title: Text("UNITS SELECTION"),
+        title: Text(
+          "UNITS SELECTION",
+          style: TextStyle(fontSize: fontSize),
+        ),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
@@ -1228,6 +1272,38 @@ class _RegisterFormState extends State<RegisterForm> {
                 },
                 isExpandableTitle: true,
               ),
+              SizedBox(height: 100.h),
+              Container(
+                child: Card(
+                    margin: EdgeInsets.all(5.0),
+                    //color: Colors.grey.shade50,
+                    child: Padding(
+                      padding: EdgeInsets.all(0.0),
+                      child: TextField(
+                        controller: notes,
+                        textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.center,
+                        maxLines: 4,
+                        decoration: InputDecoration.collapsed(
+                            border: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.red, width: 10),
+                            ),
+                            hintText: "Notes",
+                            hintStyle: TextStyle(
+                                color: Colors.black.withOpacity(0.5),
+                                fontSize: 55.sp)),
+                      ),
+                    )),
+                decoration: new BoxDecoration(
+                  boxShadow: [
+                    new BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 0.01),
+                  ],
+                ),
+              )
             ],
           ),
         ),
@@ -1235,8 +1311,9 @@ class _RegisterFormState extends State<RegisterForm> {
     );
   }
 
-  Widget _attachmentsAndNotes(BuildContext context) {
+  Widget _attachments(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           centerTitle: true,
           title: Text("Upload Attachments (Optional)"),
@@ -1244,53 +1321,57 @@ class _RegisterFormState extends State<RegisterForm> {
         ), //set appbar
         body: Container(
             alignment: Alignment.center,
-            padding: EdgeInsets.all(40),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.all(10),
-                  //show file name here
-                  child: Text(
-                    basename(progress),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold),
+            margin: EdgeInsets.only(bottom: 130.h),
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.all(10),
+                    //show file name here
+                    child: Text(
+                      basename(progress),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    //show progress status here
                   ),
-                  //show progress status here
-                ),
-                Container(
-                    child: GestureDetector(
-                  onTap: () {
-                    selectFile();
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      color: Colors.blueGrey,
-                      border: Border.all(
+                  Container(
+                      child: GestureDetector(
+                    onTap: () {
+                      selectFile();
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
                         color: Colors.blueGrey,
+                        border: Border.all(
+                          color: Colors.blueGrey,
+                        ),
+                      ),
+                      padding: EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.upload_outlined,
+                            color: Colors.white,
+                            size: 100.h,
+                          ),
+                          Text(
+                            uploadedAFile
+                                ? "Upload another file"
+                                : "SELECT FILE",
+                            style:
+                                TextStyle(fontSize: 50.sp, color: Colors.white),
+                          ),
+                        ],
                       ),
                     ),
-                    padding: EdgeInsets.all(8),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.upload_outlined,
-                          color: Colors.white,
-                          size: 100.h,
-                        ),
-                        Text(
-                          uploadedAFile ? "Upload another file" : "SELECT FILE",
-                          style:
-                              TextStyle(fontSize: 50.sp, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                )),
-              ],
+                  )),
+                ],
+              ),
             )));
   }
 
@@ -1298,6 +1379,7 @@ class _RegisterFormState extends State<RegisterForm> {
     enclosedItems = GroupController(
         isMultipleSelection: true,
         initSelectedItem: caseInfoHolder.enclosedItems);
+
     miscellaneous = GroupController(
         isMultipleSelection: true,
         initSelectedItem: caseInfoHolder.miscellaneous);
@@ -1338,20 +1420,20 @@ class _RegisterFormState extends State<RegisterForm> {
         .pickFiles(type: FileType.any, allowMultiple: true);
     List<File> files = [];
     if (filePickerResult != null) {
-      List<File> files =
-          filePickerResult!.paths.map((path) => File(path!)).toList();
+      files = filePickerResult!.paths.map((path) => File(path!)).toList();
     } else {
       // User canceled the picker
     }
 
-    files.forEach((File file) {
+    files.forEach((File file) async {
       progress = "Uploading..";
-      uploadFile(file.path);
+      await uploadFile(file.path);
     });
     //update the UI so that file name is shown
   }
 
   uploadFile(String filePath) async {
+    filesUploaded++;
     String uploadurl = "http://lab.manshore.com/file_upload.php";
     // don't use http://localhost , because emulator don't get that address
     // instead use your local IP address or use live URL
@@ -1371,9 +1453,9 @@ class _RegisterFormState extends State<RegisterForm> {
       onSendProgress: (int sent, int total) {
         String percentage = (sent / total * 100).toStringAsFixed(2);
         setState(() {
-          if (double.parse(percentage) > 99)
-            progress = "Uploaded Successfully";
-          else
+          if (double.parse(percentage) > 99) {
+            progress = "$filesUploaded Files Uploaded Successfully";
+          } else
             progress = "Uploading";
           //update the progress
         });

@@ -1,25 +1,25 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:mosaic_doctors/models/AccountStatementEntry.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mosaic_doctors/models/sessionData.dart';
 import 'package:mosaic_doctors/models/statementTotals.dart';
-import 'package:mosaic_doctors/services/labDatabase.dart';
 import 'package:mosaic_doctors/services/auth_service.dart';
 import 'package:mosaic_doctors/services/exportingService.dart';
-
+import 'package:mosaic_doctors/services/labDatabase.dart';
 import 'package:mosaic_doctors/services/security.dart';
 import 'package:mosaic_doctors/shared/Constants.dart';
 import 'package:mosaic_doctors/shared/font_styles.dart';
-import 'package:mosaic_doctors/shared/responsive_helper.dart';
-
-import 'package:mosaic_doctors/shared/widgets.dart';
 import 'package:mosaic_doctors/shared/locator.dart';
+import 'package:mosaic_doctors/shared/responsive_helper.dart';
+import 'package:mosaic_doctors/shared/widgets.dart';
 import 'package:mosaic_doctors/views/StatementEntryRow.dart';
-import 'package:intl/intl.dart';
 import 'package:mosaic_doctors/views/paymentView.dart';
+
 import '../SignIn_with_phone.dart';
 import 'createCaseWizerd.dart';
 
@@ -45,14 +45,14 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   List<PopupMenuEntry<String>> options = [];
 
   getAccountStatement() {
-
     accountStatementEntries = LabDatabase.getDoctorAccountStatement(
         getIt<SessionData>().doctor!.id, false);
   }
-  getAccountStatementTotals(currentMonth){
-    totals = LabDatabase.getAccountStatementTotals(
-        currentMonth);
+
+  getAccountStatementTotals(currentMonth) {
+    totals = LabDatabase.getAccountStatementTotals(currentMonth);
   }
+
   refreshStatement() {
     accountStatementEntries = LabDatabase.getDoctorAccountStatement(
         getIt<SessionData>().doctor!.id, true);
@@ -81,12 +81,6 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-
   static Future<Null>? isRegistering;
   GlobalKey? _scaffoldKey;
   double? screenHeight;
@@ -98,7 +92,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   bool _bottomCountersBuilt = false;
   @override
   Widget build(BuildContext context) {
-    print( "Doctor can create case : " + (getIt<SessionData>().doctor!.canCreateCase == '1').toString() );
+    print("Doctor can create case : " +
+        (getIt<SessionData>().doctor!.canCreateCase == '1').toString());
 
     _setMonthsNavigationFlags();
     pdfTable.clear();
@@ -120,15 +115,38 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                     context,
                     _scaffoldKey as GlobalKey<ScaffoldState>?,
                     "Account Statement ${currentMonth.format("MMMM yyyy")}",
-                    !isOldestMonth ? IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: goBackAMonth) :IconButton(icon: Icon(Icons.arrow_back_ios,color: Colors.grey,), onPressed: null)  ,
-                    !isNewestMonth ? IconButton(icon: Icon(Icons.arrow_forward_ios), onPressed: goForwardAMonth):IconButton(icon: Icon(Icons.arrow_forward_ios,color: Colors.grey,), onPressed: null) ,
-
-                   IconButton(icon: Icon(Icons.menu,color: Colors.grey,), onPressed:(){ _settingModalBottomSheet(context);})),
+                    !isOldestMonth
+                        ? IconButton(
+                            icon: Icon(Icons.arrow_back_ios),
+                            onPressed: goBackAMonth)
+                        : IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.grey,
+                            ),
+                            onPressed: null),
+                    !isNewestMonth
+                        ? IconButton(
+                            icon: Icon(Icons.arrow_forward_ios),
+                            onPressed: goForwardAMonth)
+                        : IconButton(
+                            icon: Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.grey,
+                            ),
+                            onPressed: null),
+                    IconButton(
+                        icon: Icon(
+                          Icons.menu,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          _settingModalBottomSheet(context);
+                        })),
                 _buildAccountStatement()
               ]),
             ),
             _buildBottomCounters(screenHeight, screenWidth)
-
           ],
         ),
       ),
@@ -177,7 +195,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
           }
           return Column(
             //mainAxisSize: MainAxisSize.min,
-            children:[
+            children: [
               Container(
                 width: rowWidth,
                 child: Column(
@@ -202,7 +220,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                                   context)),
                                     ),
                                     Container(
-                                      width: rowWidth! / labEntryCellWidthFactor,
+                                      width:
+                                          rowWidth! / labEntryCellWidthFactor,
                                       child: Text("Entry",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -211,8 +230,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                     ),
                                     Container(
                                       padding: EdgeInsets.only(left: 0),
-
-                                      width: rowWidth! / labCreditCellWidthFactor,
+                                      width:
+                                          rowWidth! / labCreditCellWidthFactor,
                                       child: Text("Credit",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -220,7 +239,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                           textAlign: TextAlign.left),
                                     ),
                                     Container(
-                                      width: rowWidth! / labDebitCellWidthFactor,
+                                      width:
+                                          rowWidth! / labDebitCellWidthFactor,
                                       child: Text("Debit",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -229,7 +249,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                     ),
                                     Container(
                                       // alignment: Alignment.center,
-                                      width: rowWidth! / labBalanceCellWidthFactor,
+                                      width:
+                                          rowWidth! / labBalanceCellWidthFactor,
                                       child: Text("Balance",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -242,11 +263,14 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                               ),
                             ),
                           ),
-                          Divider(height: 1,),
+                          Divider(
+                            height: 1,
+                          ),
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Container(
-                              height: screenHeight! - (screenHeight! / 12) -328.h,
+                              height:
+                                  screenHeight! - (screenHeight! / 12) - 328.h,
                               width: rowWidth,
                               child: Padding(
                                 padding:
@@ -299,7 +323,6 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
 //                                        print("Finished building AS");}
                                         return LabEntryRow(ASE);
                                       }
-
                                     }),
                               ),
                             ),
@@ -312,355 +335,367 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
               ),
             ],
           );
-        })
-      ;
+        });
   }
 
-  Future? totals ;
+  Future? totals;
   Widget _buildBottomCounters(double? screenHeight, double? screenWidth) {
-
     getAccountStatementTotals(currentMonth);
     return FutureBuilder(
         future: totals,
-        builder: (context,AsyncSnapshot data)
-    {
-      totalsItem = data.data;
-      if(data.data == null)
-      return Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.only(
-                    left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                        color: Colors.grey.withOpacity(0.4),
-                        offset: const Offset(0, -2),
-                        blurRadius: 8.0),
-                  ],
-                ),
-                height: screenHeight / 12,
-                width: screenWidth,
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Credit: "),
-                          Row(
-                            children: [
-                              Text('0',
-                                  style: MyFontStyles.statementHeaderFontStyle(
-                                      context)),
-                              Text(" JOD")
-                            ],
-                          ),
-                        ],
-                      ),
+        builder: (context, AsyncSnapshot data) {
+          totalsItem = data.data;
+          if (data.data == null)
+            return Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(
+                        left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.grey.withOpacity(0.4),
+                            offset: const Offset(0, -2),
+                            blurRadius: 8.0),
+                      ],
                     ),
-                    Flexible(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Debit: "),
-                          Row(
+                    height: screenHeight / 12,
+                    width: screenWidth,
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('0',
-                                  style: MyFontStyles.statementHeaderFontStyle(
-                                      context),
-                                  textAlign: TextAlign.left),
-                              Text(" JOD", style: TextStyle())
+                              Text("Credit: "),
+                              Row(
+                                children: [
+                                  Text('0',
+                                      style:
+                                          MyFontStyles.statementHeaderFontStyle(
+                                              context)),
+                                  Text(" JOD")
+                                ],
+                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Flexible(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Debit: "),
+                              Row(
+                                children: [
+                                  Text('0',
+                                      style:
+                                          MyFontStyles.statementHeaderFontStyle(
+                                              context),
+                                      textAlign: TextAlign.left),
+                                  Text(" JOD", style: TextStyle())
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Flexible(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Balance: "),
+                              Row(
+                                children: [
+                                  Text(getIt<SessionData>().doctor!.balance!,
+                                      style:
+                                          MyFontStyles.statementHeaderFontStyle(
+                                                  context)
+                                              .copyWith(
+                                        fontSize:
+                                            Responsiveness.entryFontSize!.sp +
+                                                3,
+                                      )),
+                                  Text(" JOD")
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
-                    Flexible(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Balance: "),
-                          Row(
-                            children: [
-                              Text(
-                                  getIt<SessionData>().doctor!.balance!,
-                                  style:
-                                  MyFontStyles.statementHeaderFontStyle(context)
-                                      .copyWith(
-                                    fontSize: Responsiveness.entryFontSize!.sp + 3,
-                                  )),
-                              Text(" JOD")
-                            ],
-                          ),
+                  ),
+                  Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black87.withOpacity(0.8),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              offset: const Offset(0, 2),
+                              blurRadius: 8.0),
                         ],
                       ),
-                    )
-                  ],
-                ),
+                      height: screenHeight / 13,
+                      width: screenWidth + 16,
+                      child: FlatButton(
+                        textColor: Colors.white,
+                        splashColor: Colors.grey,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 28.0.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                Icons.credit_card,
+                                size: 80.w,
+                              ),
+                              Text("MAKE A PAYMENT",
+                                  style: TextStyle(fontSize: 43.sp)),
+                              Container(
+                                width: 60.w,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 5),
+                                child: FlatButton(
+                                  shape: new RoundedRectangleBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(28.0)),
+                                  splashColor: Colors.white,
+                                  color: Colors.transparent,
+                                  child: Icon(Icons.arrow_forward_rounded,
+                                      color: Colors.white),
+                                  onPressed: () => {},
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PaymentView()));
+                          //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
+                        },
+                      ))
+                ],
               ),
-
-              Container(
+            );
+          // print(totalsItem.totalDebit.toString()+ ' ' + totalsItem.openingBalance.toString()+ ' ' + totalsItem.totalCredit.toString());
+          return Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(
+                      left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
                   decoration: BoxDecoration(
-                    color: Colors.black87.withOpacity(0.8),
+                    color: Colors.white,
                     boxShadow: <BoxShadow>[
                       BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          offset: const Offset(0, 2),
+                          color: Colors.grey.withOpacity(0.4),
+                          offset: const Offset(0, -2),
                           blurRadius: 8.0),
                     ],
                   ),
-                  height: screenHeight / 13,
-                  width: screenWidth + 16,
-                  child: FlatButton(
-                    textColor: Colors.white,
-                    splashColor: Colors.grey,
-                    child:
-                    Padding(
-                      padding: EdgeInsets.only(left:28.0.w),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Icon(Icons.credit_card,size: 80.w,),
-                          Text("MAKE A PAYMENT", style: TextStyle(fontSize: 43.sp)),
-                          Container(
-                            width: 60.w,
-                            padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 5),
-                            child: FlatButton(
-                              shape: new RoundedRectangleBorder(
-                                  borderRadius:
-                                  new BorderRadius.circular(28.0)),
-                              splashColor: Colors.white,
-                              color: Colors.transparent,
-                              child: Icon(
-                                  Icons.arrow_forward_rounded,
-                                  color: Colors.white
-                              ),
-                              onPressed: () => {},
+                  height: screenHeight / 12,
+                  width: screenWidth,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Credit: "),
+                            Row(
+                              children: [
+                                Text(formatter.format(totalsItem!.totalCredit),
+                                    style:
+                                        MyFontStyles.statementHeaderFontStyle(
+                                            context)),
+                                Text(" JOD")
+                              ],
                             ),
-                          )],
+                          ],
+                        ),
                       ),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              PaymentView()));
-                      //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
-
-                    },
-                  ))
-            ],
-          ),
-        );
-     // print(totalsItem.totalDebit.toString()+ ' ' + totalsItem.openingBalance.toString()+ ' ' + totalsItem.totalCredit.toString());
-      return Positioned(
-        bottom: 0,
-        left: 0,
-        right: 0,
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.only(
-                  left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.4),
-                      offset: const Offset(0, -2),
-                      blurRadius: 8.0),
-                ],
-              ),
-              height: screenHeight / 12,
-              width: screenWidth,
-              child: Row(
-                children: [
-                  Flexible(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Credit: "),
-                        Row(
+                      Flexible(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(formatter.format(totalsItem!.totalCredit),
-                                style: MyFontStyles.statementHeaderFontStyle(
-                                    context)),
-                            Text(" JOD")
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Debit: "),
-                        Row(
-                          children: [
-                            Text(formatter.format(totalsItem!.totalDebit),
-                                style: MyFontStyles.statementHeaderFontStyle(
-                                    context),
-                                textAlign: TextAlign.left),
-                            Text(" JOD", style: TextStyle())
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Balance: "),
-                        Row(
-                          children: [
-                            Text(
-                                getIt<SessionData>().doctor!.balance == "N/A"
-                                    ? "0"
-                                    : formatter.format(totalsItem!.totalDebit+ totalsItem!.openingBalance - totalsItem!.totalCredit),
-                                style:
-                                MyFontStyles.statementHeaderFontStyle(context)
-                                    .copyWith(
-                                  fontSize: Responsiveness.entryFontSize!.sp + 3,
-                                )),
-                            Text(" JOD")
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-            ('1' == '1')?
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 0,horizontal: 0),
-                decoration: BoxDecoration(
-                  color: Colors.lightBlue.shade700,
-
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        offset: const Offset(0, 2),
-                        blurRadius: 8.0),
-                  ],
-                ),
-                height: screenHeight / 13,
-                width: screenWidth + 16,
-                child: FlatButton(
-                  textColor: Colors.white,
-                  splashColor: Colors.white70,
-                  child:
-                  Padding(
-                    padding: EdgeInsets.only(left:28.0.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(Icons.add_to_queue,size: 80.w,color: Colors.white,),
-                        Text("CREATE A NEW CASE", style: TextStyle(fontSize: 43.sp,color:Colors.white)),
-                        Container(
-                          width: 60.w,
-                          padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 5),
-                          child: FlatButton(
-                            shape: new RoundedRectangleBorder(
-                                borderRadius:
-                                new BorderRadius.circular(28.0)),
-                            splashColor: Colors.white,
-                            color: Colors.transparent,
-                            child: Icon(
-                                Icons.arrow_forward_rounded,
-                                color: Colors.white
+                            Text("Debit: "),
+                            Row(
+                              children: [
+                                Text(formatter.format(totalsItem!.totalDebit),
+                                    style:
+                                        MyFontStyles.statementHeaderFontStyle(
+                                            context),
+                                    textAlign: TextAlign.left),
+                                Text(" JOD", style: TextStyle())
+                              ],
                             ),
-                            onPressed: () => {},
+                          ],
+                        ),
+                      ),
+                      Flexible(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Balance: "),
+                            Row(
+                              children: [
+                                Text(
+                                    getIt<SessionData>().doctor!.balance ==
+                                            "N/A"
+                                        ? "0"
+                                        : formatter.format(
+                                            totalsItem!.totalDebit +
+                                                totalsItem!.openingBalance -
+                                                totalsItem!.totalCredit),
+                                    style:
+                                        MyFontStyles.statementHeaderFontStyle(
+                                                context)
+                                            .copyWith(
+                                      fontSize:
+                                          Responsiveness.entryFontSize!.sp + 3,
+                                    )),
+                                Text(" JOD")
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                ('1' == '1')
+                    ? Container(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                        decoration: BoxDecoration(
+                          color: Colors.lightBlue.shade700,
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                offset: const Offset(0, 2),
+                                blurRadius: 8.0),
+                          ],
+                        ),
+                        height: screenHeight / 13,
+                        width: screenWidth + 16,
+                        child: FlatButton(
+                          textColor: Colors.white,
+                          splashColor: Colors.white70,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 28.0.w),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(
+                                  Icons.add_to_queue,
+                                  size: 80.w,
+                                  color: Colors.white,
+                                ),
+                                Text("CREATE A NEW CASE",
+                                    style: TextStyle(
+                                        fontSize: 43.sp, color: Colors.white)),
+                                Container(
+                                  width: 60.w,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8.0, horizontal: 5),
+                                  child: FlatButton(
+                                    shape: new RoundedRectangleBorder(
+                                        borderRadius:
+                                            new BorderRadius.circular(28.0)),
+                                    splashColor: Colors.white,
+                                    color: Colors.transparent,
+                                    child: Icon(Icons.arrow_forward_rounded,
+                                        color: Colors.white),
+                                    onPressed: () => {},
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                        )],
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => RegisterForm()));
+                            //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
+                          },
+                        ))
+                    : Text("Hi"),
+                Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black87.withOpacity(0.8),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            offset: const Offset(0, 2),
+                            blurRadius: 8.0),
+                      ],
                     ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            RegisterForm()));
-                    //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
-
-                  },
-                )) : SizedBox(),
-            Container(
-                decoration: BoxDecoration(
-                  color: Colors.black87.withOpacity(0.8),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        offset: const Offset(0, 2),
-                        blurRadius: 8.0),
-                  ],
-                ),
-                height: screenHeight / 13,
-                width: screenWidth + 16,
-                child: FlatButton(
-                  textColor: Colors.white,
-                  splashColor: Colors.grey,
-                  child:
-                  Padding(
-                    padding: EdgeInsets.only(left:28.0.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(Icons.credit_card,size: 80.w,),
-                        Text("MAKE A PAYMENT", style: TextStyle(fontSize: 43.sp)),
-                    Container(
-                      width: 60.w,
-                      padding: const EdgeInsets.symmetric(vertical: 8.0,horizontal: 5),
-                      child: FlatButton(
-                        shape: new RoundedRectangleBorder(
-                            borderRadius:
-                            new BorderRadius.circular(28.0)),
-                        splashColor: Colors.white,
-                        color: Colors.transparent,
-                        child: Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white
+                    height: screenHeight / 13,
+                    width: screenWidth + 16,
+                    child: FlatButton(
+                      textColor: Colors.white,
+                      splashColor: Colors.grey,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 28.0.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(
+                              Icons.credit_card,
+                              size: 80.w,
+                            ),
+                            Text("MAKE A PAYMENT",
+                                style: TextStyle(fontSize: 43.sp)),
+                            Container(
+                              width: 60.w,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 5),
+                              child: FlatButton(
+                                shape: new RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(28.0)),
+                                splashColor: Colors.white,
+                                color: Colors.transparent,
+                                child: Icon(Icons.arrow_forward_rounded,
+                                    color: Colors.white),
+                                onPressed: () => {},
+                              ),
+                            )
+                          ],
                         ),
-                        onPressed: () => {},
                       ),
-                    )],
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            PaymentView()));
-                    //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
-
-                  },
-                ))
-          ],
-        ),
-      );
-    }
-    );
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => PaymentView()));
+                        //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
+                      },
+                    ))
+              ],
+            ),
+          );
+        });
   }
 
-  double openingBalance=0;
+  double openingBalance = 0;
   Widget _buildRoundedBalanceEntry(AccountStatementEntry? ASE,
       [bool isCurrentMonthEntry = true]) {
-
-    double rowWidth = MediaQuery.of(context).size.width ;
-     openingBalance = 0;
-     if (isCurrentMonthEntry) {
-       if (ASE!.credit != "N/A") {
-        openingBalance = double.parse(ASE.balance!) + double.parse(ASE.credit!)  ;
+    double rowWidth = MediaQuery.of(context).size.width;
+    openingBalance = 0;
+    if (isCurrentMonthEntry) {
+      if (ASE!.credit != "N/A") {
+        openingBalance = double.parse(ASE.balance!) + double.parse(ASE.credit!);
       } else {
         openingBalance = double.parse(ASE.balance!) - double.parse(ASE.debit!);
       }
@@ -668,7 +703,9 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
       openingBalance = double.parse(ASE!.balance!);
     }
     AccountStatementEntry ASEtoPrint = new AccountStatementEntry(
-        patientName: "رصيد مدور",
+        patientName: getIt<SessionData>().countryCode == "JO"
+            ? "رصيد مدور"
+            : "Opening Balance",
         createdAt: "N/A",
         credit: "N/A",
         debit: "N/A",
@@ -677,7 +714,9 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
     pdfTable.add(ASE);
     _roundedBalanceBuilt = true;
     return InkWell(
-      onTap: (){goBackAMonth();},
+      onTap: () {
+        goBackAMonth();
+      },
       child: Container(
         decoration: BoxDecoration(color: Colors.transparent),
         child: Row(
@@ -688,14 +727,17 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
               child: Text(""),
             ),
             Container(
-
                 padding: EdgeInsets.only(right: labPatientNameRightPadding),
                 width: rowWidth / labEntryCellWidthFactor,
-                child: Text("رصيد مدور",
+                child: Text(
+                    getIt<SessionData>().countryCode == "JO"
+                        ? "رصيد مدور"
+                        : "Opening Balance",
                     style: MyFontStyles.statementPatientNameFontStyle(context)
                         .copyWith(
-                      fontWeight: FontWeight.w700,fontSize: Responsiveness.patientNameFontSize!.sp+3.sp
-                    ),
+                            fontWeight: FontWeight.w700,
+                            fontSize:
+                                Responsiveness.patientNameFontSize!.sp + 3.sp),
                     textAlign: TextAlign.right)),
             Container(
               width: rowWidth / labCreditCellWidthFactor,
@@ -706,14 +748,13 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
               child: Text(""),
             ),
             Container(
-
               alignment: Alignment.bottomLeft,
               padding: EdgeInsets.only(left: labCellsLeftPadding),
               width: rowWidth / labBalanceCellWidthFactor,
               child: Text(openingBalance.toString(),
                   style: MyFontStyles.statementEntryFontStyle(context).copyWith(
-                    fontWeight: FontWeight.w700,fontSize: Responsiveness.patientNameFontSize!.sp+7.sp
-                  ),
+                      fontWeight: FontWeight.w700,
+                      fontSize: Responsiveness.patientNameFontSize!.sp + 7.sp),
                   textAlign: TextAlign.left),
             )
           ],
@@ -724,56 +765,57 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
 
   goBackAMonth() {
     Jiffy threeMonthsAgo = Jiffy()..subtract(months: 3);
-    if (currentMonth.format("yy-MM") == threeMonthsAgo.format("yy-MM") || isOldestMonth) {
+    if (currentMonth.format("yy-MM") == threeMonthsAgo.format("yy-MM") ||
+        isOldestMonth) {
       SharedWidgets.showMOSAICDialog(
-          "Sorry, If you wish to view more Please contact us.",context);
+          "Sorry, If you wish to view more Please contact us.", context);
       return;
     }
     try {
       if (Jiffy(LabDatabase.firstEntryDate, "yyyy-MM-dd").format("yy-MM") ==
           currentMonth.format("yy-MM")) {
-        SharedWidgets.showMOSAICDialog("Sorry, You have no transactions in that month",context);
+        SharedWidgets.showMOSAICDialog(
+            "Sorry, You have no transactions in that month", context);
         return;
       }
     } catch (e) {
-      SharedWidgets.showMOSAICDialog("Sorry, You have no transactions in that month",context);
+      SharedWidgets.showMOSAICDialog(
+          "Sorry, You have no transactions in that month", context);
       return;
     }
     setState(() {
       _bottomCountersBuilt = false;
-      _accountStatementBuilt=false;
-      _roundedBalanceBuilt=false;
+      _accountStatementBuilt = false;
+      _roundedBalanceBuilt = false;
       currentMonth = currentMonth..subtract(months: 1);
     });
   }
 
   goForwardAMonth() {
     if (currentMonth.format("yy-MM") == Jiffy().format("yy-MM")) {
-      SharedWidgets.showMOSAICDialog("Sorry, We can't tell the future.",context);
+      SharedWidgets.showMOSAICDialog(
+          "Sorry, We can't tell the future.", context);
       return;
     }
     setState(() {
       _bottomCountersBuilt = false;
-      _accountStatementBuilt=false;
-      _roundedBalanceBuilt=false;
+      _accountStatementBuilt = false;
+      _roundedBalanceBuilt = false;
       currentMonth = currentMonth..add(months: 1);
     });
   }
 
-  refreshState(){
-  setState(() {
-
-  });
+  refreshState() {
+    setState(() {});
   }
 
-  changeFontSize(BuildContext context){
+  changeFontSize(BuildContext context) {
     showDialog(
         context: context,
-        builder: (BuildContext context) =>  AlertDialog(
-
-          title: Center(child: new Text("Change font size")),
-          content:StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
+        builder: (BuildContext context) => AlertDialog(
+            title: Center(child: new Text("Change font size")),
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
               return Container(
                   height: 120,
                   child: Column(
@@ -781,14 +823,34 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Row(
-
                         children: [
-                          IconButton(icon: Icon(Icons.add_circle_outline_sharp ), onPressed:Responsiveness.patientNameFontSize ==48 ? (){} : (){ setState(() {
-
-                            Responsiveness.increaseSize(); });},color:Responsiveness.patientNameFontSize ==48 ?Colors.grey: Colors.black87 ),
-                          Text( Responsiveness.entryFontSize.toString()),
-                          IconButton(icon: Icon(Icons.remove_circle_outline_sharp), onPressed:Responsiveness.patientNameFontSize ==28 ? (){} :(){setState(() { Responsiveness.decreaseSize();});}
-                          ,color:Responsiveness.patientNameFontSize ==28 ?Colors.grey: Colors.black87 ,),
+                          IconButton(
+                              icon: Icon(Icons.add_circle_outline_sharp),
+                              onPressed:
+                                  Responsiveness.patientNameFontSize == 48
+                                      ? () {}
+                                      : () {
+                                          setState(() {
+                                            Responsiveness.increaseSize();
+                                          });
+                                        },
+                              color: Responsiveness.patientNameFontSize == 48
+                                  ? Colors.grey
+                                  : Colors.black87),
+                          Text(Responsiveness.entryFontSize.toString()),
+                          IconButton(
+                            icon: Icon(Icons.remove_circle_outline_sharp),
+                            onPressed: Responsiveness.patientNameFontSize == 28
+                                ? () {}
+                                : () {
+                                    setState(() {
+                                      Responsiveness.decreaseSize();
+                                    });
+                                  },
+                            color: Responsiveness.patientNameFontSize == 28
+                                ? Colors.grey
+                                : Colors.black87,
+                          ),
                         ],
                         mainAxisAlignment: MainAxisAlignment.center,
                       ),
@@ -799,17 +861,15 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                         ),
                         color: Colors.blue,
                         onPressed: () {
-                          Navigator.of(context, rootNavigator: true).pop('dialog');
+                          Navigator.of(context, rootNavigator: true)
+                              .pop('dialog');
 
                           refreshState();
-
                         },
                       )
                     ],
                   ));
-
-            })
-        ));
+            })));
   }
 
   _setMonthsNavigationFlags() {
@@ -822,7 +882,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
       setState(() {
         isNewestMonth = false;
       });
-    if (currentMonth.format("yy-MM") == threeMonthsAgo.format("yy-MM") ||currentMonth.format("yy-MM") == Jiffy([2021,01,01]).format("yy-MM")  )
+    if (currentMonth.format("yy-MM") == threeMonthsAgo.format("yy-MM") ||
+        currentMonth.format("yy-MM") == Jiffy([2021, 01, 01]).format("yy-MM"))
       setState(() {
         isOldestMonth = true;
       });
@@ -832,41 +893,57 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
       });
   }
 
-  void _settingModalBottomSheet(context){
+  void _settingModalBottomSheet(context) {
     showModalBottomSheet(
         context: context,
-        builder: (BuildContext bc){
+        builder: (BuildContext bc) {
           return Container(
             child: new Wrap(
               children: <Widget>[
                 new ListTile(
                     leading: new Icon(Icons.refresh),
                     title: new Text('Refresh'),
-                    onTap: (){refreshStatement();
-                    Navigator.of(context).pop();}
-                ),
+                    onTap: () {
+                      refreshStatement();
+                      Navigator.of(context).pop();
+                    }),
                 new ListTile(
                   leading: new Icon(Icons.save_alt),
                   title: new Text('Save as PDF'),
-                  onTap: ()  {Exporting.saveAsPDF(context,pdfTable,currentMonth,totalsItem!.totalDebit.toString(),totalsItem!.totalCredit.toString());
-                  Navigator.of(context).pop();},
+                  onTap: () {
+                    Exporting.saveAsPDF(
+                        context,
+                        pdfTable,
+                        currentMonth,
+                        totalsItem!.totalDebit.toString(),
+                        totalsItem!.totalCredit.toString());
+                    Navigator.of(context).pop();
+                  },
                 ),
                 new ListTile(
                   leading: new Icon(Icons.print),
                   title: new Text('Print'),
-                  onTap: () {Exporting.printLabPDF(context,pdfTable,currentMonth,totalsItem!.totalDebit.toString(),totalsItem!.totalCredit.toString());
-                  Navigator.of(context).pop();},
+                  onTap: () {
+                    Exporting.printLabPDF(
+                        context,
+                        pdfTable,
+                        currentMonth,
+                        totalsItem!.totalDebit.toString(),
+                        totalsItem!.totalCredit.toString());
+                    Navigator.of(context).pop();
+                  },
                 ),
                 new ListTile(
                   leading: new Icon(Icons.format_size),
                   title: new Text('Change font size'),
-                  onTap: () {changeFontSize(context);
-                               Navigator.of(context).pop();},
+                  onTap: () {
+                    changeFontSize(context);
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             ),
           );
-        }
-    );
+        });
   }
 }
