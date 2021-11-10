@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -99,7 +100,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
     screenHeight = MediaQuery.of(context).size.height - 22;
     rowWidth = MediaQuery.of(context).size.width; // 16 padding
     screenWidth = MediaQuery.of(context).size.width;
-
+    print("Currency : ${getIt<SessionData>().countryCode}");
     return Scaffold(
       body: SafeArea(
         bottom: true,
@@ -380,9 +381,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                       style:
                                           MyFontStyles.statementHeaderFontStyle(
                                               context)),
-                                  Text(getIt<SessionData>().countryCode == "JO"
-                                      ? "JOD"
-                                      : format.currencySymbol)
+                                  Text(getCurrency())
                                 ],
                               ),
                             ],
@@ -401,11 +400,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                           MyFontStyles.statementHeaderFontStyle(
                                               context),
                                       textAlign: TextAlign.left),
-                                  Text(
-                                      getIt<SessionData>().countryCode == "JO"
-                                          ? " JOD"
-                                          : ' ' + format.currencySymbol,
-                                      style: TextStyle())
+                                  Text(getCurrency())
                                 ],
                               ),
                             ],
@@ -428,9 +423,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                             Responsiveness.entryFontSize!.sp +
                                                 3,
                                       )),
-                                  Text(getIt<SessionData>().countryCode == "JO"
-                                      ? " JOD"
-                                      : ' ' + format.currencySymbol)
+                                  Text(getCurrency())
                                 ],
                               ),
                             ],
@@ -527,7 +520,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                     style:
                                         MyFontStyles.statementHeaderFontStyle(
                                             context)),
-                                Text(" JOD")
+                                Text(" ${getIt<SessionData>().countryCurrency}")
                               ],
                             ),
                           ],
@@ -546,7 +539,8 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                         MyFontStyles.statementHeaderFontStyle(
                                             context),
                                     textAlign: TextAlign.left),
-                                Text(" JOD", style: TextStyle())
+                                Text(" ${getIt<SessionData>().countryCurrency}",
+                                    style: TextStyle())
                               ],
                             ),
                           ],
@@ -575,7 +569,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                                       fontSize:
                                           Responsiveness.entryFontSize!.sp + 3,
                                     )),
-                                Text(" JOD")
+                                Text(" ${getIt<SessionData>().countryCurrency}")
                               ],
                             ),
                           ],
@@ -954,5 +948,12 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
             ),
           );
         });
+  }
+
+  String getCurrency() {
+    var format = NumberFormat.simpleCurrency(locale: Platform.localeName);
+    print(Platform.localeName);
+    print(format.currencyName);
+    return format.currencySymbol;
   }
 }

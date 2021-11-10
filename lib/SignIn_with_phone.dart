@@ -161,58 +161,11 @@ class _LoginPageState extends State<LoginPage> {
                                               readOnly: true,
                                               onTap: () {
                                                 showCountryPicker(
-                                                    countryFilter: <String>[
-                                                      'JO',
-                                                      'UK'
-                                                    ],
                                                     context: context,
-                                                    showPhoneCode: true,
-                                                    countryListTheme:
-                                                        CountryListThemeData(
-                                                      flagSize: 25,
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      textStyle: TextStyle(
-                                                          fontSize: 16,
-                                                          color:
-                                                              Colors.blueGrey),
-                                                      //Optional. Sets the border radius for the bottomsheet.
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topLeft:
-                                                            Radius.circular(
-                                                                20.0),
-                                                        topRight:
-                                                            Radius.circular(
-                                                                20.0),
-                                                      ),
-                                                      //Optional. Styles the search field.
-                                                      inputDecoration:
-                                                          InputDecoration(
-                                                        labelText: 'Search',
-                                                        hintText:
-                                                            'Start typing to search',
-                                                        prefixIcon: const Icon(
-                                                            Icons.search),
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color: const Color(
-                                                                    0xFF8C98A8)
-                                                                .withOpacity(
-                                                                    0.2),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onSelect:
-                                                        (Country country) =>
-                                                            setState(() {
-                                                              phoneCode = '+' +
-                                                                  country
-                                                                      .phoneCode;
-                                                            }));
+                                                    searchAutofocus: true,
+                                                    onSelect: (Country
+                                                            country) =>
+                                                        setUserData(country));
                                               },
                                               onChanged: (value) {
                                                 print(
@@ -413,5 +366,22 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void setUserData(Country country) {
+    phoneCode = '+' + country.phoneCode;
+    setState(() {});
+    Global.prefs!.setString("CountryCode", country.countryCode);
+    Global.prefs!
+        .setString("currency", country.countryCode == 'JO' ? 'JOD' : "GBP");
+    getIt<SessionData>().countryCode =
+        country.countryCode == 'JO' ? 'JOD' : "GBP";
+    getIt<SessionData>().countryCurrency =
+        country.countryCode == 'JO' ? 'JOD' : "GBP";
+    /*NumberFormat format = NumberFormat(null, country.countryCode);
+    String currency = format.simpleCurrencySymbol(country.countryCode);
+    var format2 = NumberFormat.simpleCurrency();
+
+    print(format2);*/
   }
 }

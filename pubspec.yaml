@@ -40,6 +40,7 @@ dependencies:
   checkbox_grouped: ^1.7.0
   file_picker: ^3.0.1
   country_picker: ^2.0.8
+  country_currency_pickers: 2.0.0
   dio: ^4.0.1
   path: ^1.6.4
   sticky_headers: "^0.1.8"

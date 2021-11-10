@@ -8,4 +8,5 @@ class SessionData {
   String loginWelcomeMessage = "";
   String? implantsFirstOrderDate = "";
   String countryCode = "JO";
+  String countryCurrency = "JOD";
 }
