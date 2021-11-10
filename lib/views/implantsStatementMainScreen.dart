@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:mosaic_doctors/models/AccountStatementEntry.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:mosaic_doctors/models/implantStatementRowModel.dart';
 import 'package:mosaic_doctors/models/nbDoctor.dart';
 import 'package:mosaic_doctors/models/sessionData.dart';
@@ -12,11 +13,11 @@ import 'package:mosaic_doctors/services/ExportingServiceImplants.dart';
 import 'package:mosaic_doctors/services/implantsDatabase.dart';
 import 'package:mosaic_doctors/shared/Constants.dart';
 import 'package:mosaic_doctors/shared/font_styles.dart';
+import 'package:mosaic_doctors/shared/locator.dart';
 import 'package:mosaic_doctors/shared/responsive_helper.dart';
 import 'package:mosaic_doctors/shared/widgets.dart';
-import 'package:mosaic_doctors/shared/locator.dart';
-import 'package:intl/intl.dart';
 import 'package:mosaic_doctors/views/paymentView.dart';
+
 import 'ImplantsEntryRow.dart';
 
 class ImplantsStatementView extends StatefulWidget {
@@ -49,10 +50,12 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
     nbDoctorRecord = ImplantsDatabase.getDoctorRecord(true);
     setState(() {});
   }
+
   getTransactionType() {
-    if(ImplantsDatabase.nbTransTypes == null)
-   ImplantsDatabase.getTransactionTypes(true);
+    if (ImplantsDatabase.nbTransTypes == null)
+      ImplantsDatabase.getTransactionTypes(true);
   }
+
   @override
   void initState() {
     getAccountStatement();
@@ -69,7 +72,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
 
   @override
   Widget build(BuildContext context) {
-    print("types : ${ImplantsDatabase.nbTransTypes}" );
+    print("types : ${ImplantsDatabase.nbTransTypes}");
     pdfTable.clear();
     _scaffoldKey = GlobalKey<ScaffoldState>();
     screenHeight = MediaQuery.of(context).size.height - 22;
@@ -190,8 +193,8 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                     ),
                                     Container(
                                       padding: EdgeInsets.only(left: 0),
-                                      width:
-                                          rowWidth! / implantsQtyCellWidthFactor,
+                                      width: rowWidth! /
+                                          implantsQtyCellWidthFactor,
                                       child: Text("Qty.",
                                           style: MyFontStyles
                                               .statementHeaderFontStyle(
@@ -240,8 +243,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Container(
-                              height:
-                                  screenHeight! - (screenHeight! / 2.58) ,
+                              height: screenHeight! - (screenHeight! / 2.58),
                               width: rowWidth,
                               child: Padding(
                                 padding:
@@ -249,7 +251,7 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                 child: ListView.builder(
                                     scrollDirection: Axis.vertical,
                                     itemCount:
-                                        accountStatementEntrys.data.length ,
+                                        accountStatementEntrys.data.length,
                                     itemBuilder: (context, index) {
                                       ImplantStatementRowModel? ASE =
                                           accountStatementEntrys.data[index];
@@ -275,12 +277,11 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
     return FutureBuilder(
         future: nbDoctorRecord,
         builder: (context, data) {
-          if (data.connectionState ==
-              ConnectionState.waiting) {
+          if (data.connectionState == ConnectionState.waiting) {
             return Positioned(
               bottom: 100,
-              left:1,
-              right:1,
+              left: 1,
+              right: 1,
               child: SpinKitWanderingCubes(
                 color: Colors.black,
               ),
@@ -293,9 +294,8 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
             return SizedBox();
           // in case of data
           return Container(
-           // color: Colors.white,
+            // color: Colors.white,
             child: Column(
-
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -346,65 +346,71 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                         //crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                      Flexible(
-                        flex: 5,
-                        child: Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(height: 10.h,),
-                              Text(
-                                "STARTS AT",
-                                style: MyFontStyles.textValueheadingFontStyle(
-                                        context)
-                                    .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: implantsBottomTitleFS - 8.sp),
+                          Flexible(
+                            flex: 5,
+                            child: Center(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 10.h,
+                                  ),
+                                  Text(
+                                    "STARTS AT",
+                                    style: MyFontStyles
+                                            .textValueheadingFontStyle(context)
+                                        .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize:
+                                                implantsBottomTitleFS - 8.sp),
+                                  ),
+                                  Text(
+                                    getIt<SessionData>()
+                                        .implantsFirstOrderDate!
+                                        .substring(0, 10),
+                                    style: TextStyle(
+                                        fontSize: implantsBottomValueFS),
+                                  )
+                                ],
                               ),
-                              Text(
-                                getIt<SessionData>()
-                                    .implantsFirstOrderDate!
-                                    .substring(0, 10),
-                                style: TextStyle(fontSize: implantsBottomValueFS),
-                              )
-
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                      VerticalDivider(),
-                      Flexible(
-                        flex: 5,
-                        child: Center(
-                          child: Column(
-                            children: [
-                              SizedBox(height: 10.h,),
-                              Text(
-                                "ENDS AT",
-                                style: MyFontStyles.textValueheadingFontStyle(
-                                        context)
-                                    .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: implantsBottomTitleFS - 8.sp),
-                              ),
-
-                              Text(
-                                (int.parse(getIt<SessionData>()
+                          VerticalDivider(),
+                          Flexible(
+                            flex: 5,
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 10.h,
+                                  ),
+                                  Text(
+                                    "ENDS AT",
+                                    style: MyFontStyles
+                                            .textValueheadingFontStyle(context)
+                                        .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize:
+                                                implantsBottomTitleFS - 8.sp),
+                                  ),
+                                  Text(
+                                    (int.parse(getIt<SessionData>()
+                                                    .implantsFirstOrderDate!
+                                                    .substring(0, 4)) +
+                                                1)
+                                            .toString() +
+                                        getIt<SessionData>()
                                             .implantsFirstOrderDate!
-                                            .substring(0, 4)) +
-                                        1)
-                                    .toString() +
-                                getIt<SessionData>()
-                                    .implantsFirstOrderDate!
-                                    .substring(4, 10),
-                                style: TextStyle(fontSize: implantsBottomValueFS),
+                                            .substring(4, 10),
+                                    style: TextStyle(
+                                        fontSize: implantsBottomValueFS),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    ]),
+                        ]),
                   ),
                   Divider(
                     thickness: 3,
@@ -417,7 +423,9 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                         flex: 4,
                         child: Column(
                           children: [
-                            SizedBox(height: 10.h,),
+                            SizedBox(
+                              height: 10.h,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -429,7 +437,6 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                 )
                               ],
                             ),
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -447,7 +454,6 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                 )
                               ],
                             ),
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -469,7 +475,9 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                         flex: 3,
                         child: Column(
                           children: [
-                            SizedBox(height: 10.h,),
+                            SizedBox(
+                              height: 10.h,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -481,7 +489,6 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                 )
                               ],
                             ),
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -499,7 +506,6 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                 )
                               ],
                             ),
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
@@ -518,11 +524,12 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                       ),
                       VerticalDivider(),
                       Flexible(
-
                         flex: 3,
                         child: Column(
                           children: [
-                            SizedBox(height: 10.h,),
+                            SizedBox(
+                              height: 10.h,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -532,19 +539,22 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                                           context)
                                       .copyWith(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: implantsBottomTitleFS - 3.sp),
+                                          fontSize:
+                                              implantsBottomTitleFS - 3.sp),
                                 )
                               ],
                             ),
-                            SizedBox(height: 10.h,),
+                            SizedBox(
+                              height: 10.h,
+                            ),
                             Flexible(
                               flex: 5,
                               child: Text(
                                 formatter.format(int.parse(nbDoctor.balance!)) +
-                                " JOD",
+                                    " JOD",
                                 style: TextStyle(
-                                fontSize: implantsBottomValueFS + 10.sp,
-                                fontWeight: FontWeight.bold),
+                                    fontSize: implantsBottomValueFS + 10.sp,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
@@ -692,7 +702,11 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                   leading: new Icon(Icons.save_alt),
                   title: new Text('Save as PDF'),
                   onTap: () async {
-                    ExportingServiceImplants.printImplantsPDF(context, pdfTable as List<ImplantStatementRowModel>, await (ImplantsDatabase.getDoctorRecord(true) as FutureOr<NbDoctor>));
+                    ExportingServiceImplants.printImplantsPDF(
+                        context,
+                        pdfTable as List<ImplantStatementRowModel>,
+                        await (ImplantsDatabase.getDoctorRecord(true)
+                            as FutureOr<NbDoctor>));
                     Navigator.of(context).pop();
                   },
                 ),
@@ -700,11 +714,15 @@ class _ImplantsStatementViewState extends State<ImplantsStatementView> {
                   leading: new Icon(Icons.print),
                   title: new Text('Print'),
                   onTap: () async {
-                    ExportingServiceImplants.printImplantsPDF(context, pdfTable as List<ImplantStatementRowModel>, await (ImplantsDatabase.getDoctorRecord(true) as FutureOr<NbDoctor>));
+                    ExportingServiceImplants.printImplantsPDF(
+                        context,
+                        pdfTable as List<ImplantStatementRowModel>,
+                        await (ImplantsDatabase.getDoctorRecord(true)
+                            as FutureOr<NbDoctor>));
                     Navigator.of(context).pop();
                   },
                 ),
-                new ListTile (
+                new ListTile(
                   leading: new Icon(Icons.format_size),
                   title: new Text('Change font size'),
                   onTap: () {

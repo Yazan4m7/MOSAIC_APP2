@@ -6,31 +6,25 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:mosaic_doctors/models/sessionData.dart';
 import 'package:mosaic_doctors/services/auth_service.dart';
 import 'package:mosaic_doctors/services/notifications.dart';
-import 'package:mosaic_doctors/services/notifications_old.dart';
 import 'package:mosaic_doctors/shared/globalVariables.dart';
 import 'package:mosaic_doctors/shared/locator.dart';
-import 'package:mosaic_doctors/shared/responsive_helper.dart';
-
-import 'services/paymentService.dart';
-
 
 main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
   await Global.initializeSharedPreferences();
   await Firebase.initializeApp();
- //AuthService.signOut();
+  //AuthService.signOut();
 
-    runApp(GetMaterialApp(
+  runApp(GetMaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-            body: EntryPoint()),
-      ),
-    ));
+      home: Scaffold(body: EntryPoint()),
+    ),
+  ));
 }
+
 class EntryPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -39,12 +33,16 @@ class EntryPoint extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
     Notifications.initializeFCM();
-    getIt<SessionData>().countryCode = WidgetsBinding.instance!.window.locale.countryCode;
+    // Set user's country
+    getIt<SessionData>().countryCode =
+        WidgetsBinding.instance!.window.locale.countryCode!;
+
+    print("Country code : " + getIt<SessionData>().countryCode);
 
     return ScreenUtilInit(
-      designSize: Size(1080 , 1920 ),
-
-        builder: () =>  MaterialApp(home:AuthService().handleAuth() ,)
-    );
+        designSize: Size(1080, 1920),
+        builder: () => MaterialApp(
+              home: AuthService().handleAuth(),
+            ));
   }
 }

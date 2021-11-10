@@ -16,6 +16,14 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>UISupportsDocumentBrowser</key>
+    <true/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Client may need to attach photos of the patient teeth to match colors with the new teeth</string>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+	<key>NSAppleMusicUsageDescription</key>
+    <string>Dentist may attach a voice recording to explain his notes about the case</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
@@ -32,6 +40,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIBackgroundModes</key>
+    <array>
+       <string>fetch</string>
+       <string>remote-notification</string>
+    </array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

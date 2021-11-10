@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:checkbox_grouped/checkbox_grouped.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mosaic_doctors/models/uk_case.dart';
 import 'package:mosaic_doctors/services/exCasesController.dart';
 import 'package:mosaic_doctors/services/labDatabase.dart';
 import 'package:mosaic_doctors/shared/widgets.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:mosaic_doctors/views/labStatementMainScreen.dart';
 import 'package:path/path.dart';
 
@@ -21,7 +23,7 @@ class RegisterForm extends StatefulWidget {
 
 class _RegisterFormState extends State<RegisterForm> {
   final _formsPageViewController = PageController();
-  late List _forms;
+  List? _forms;
   TextEditingController patientName = TextEditingController();
   TextEditingController dateIn = TextEditingController();
   TextEditingController dateReturn = TextEditingController();
@@ -32,44 +34,46 @@ class _RegisterFormState extends State<RegisterForm> {
   TextEditingController stumpShade = TextEditingController();
   TextEditingController vitaClassic = TextEditingController();
   TextEditingController master3D = TextEditingController();
+
   int? translucency = -1;
   int? surfaceTexture = -1;
   bool studyModels = false;
-   static GroupController enclosedItems =  GroupController(
-    isMultipleSelection: true,
 
-  );
-  static  GroupController miscellaneous = GroupController(
+  GroupController miscellaneous = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController prosthetics = GroupController(
+  GroupController prosthetics = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController crownBridgeMetalFree = GroupController(
+  GroupController crownBridgeMetalFree = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController crownBridgeMetalRestoration = GroupController(
+  GroupController enclosedItems = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController implantWorkMetalFree = GroupController(
+
+  GroupController crownBridgeMetalRestoration = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController implantWorkMetalRestoration = GroupController(
+  GroupController implantWorkMetalFree = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController implantWorkAllOn46 = GroupController(
+  GroupController implantWorkMetalRestoration = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController selectedUnitsUR = GroupController(
+  GroupController implantWorkAllOn46 = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController selectedUnitsUL = GroupController(
+  GroupController selectedUnitsUR = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController selectedUnitsLL = GroupController(
+  GroupController selectedUnitsUL = GroupController(
     isMultipleSelection: true,
   );
-  static GroupController selectedUnitsLR = GroupController(
+  GroupController selectedUnitsLL = GroupController(
+    isMultipleSelection: true,
+  );
+  GroupController selectedUnitsLR = GroupController(
     isMultipleSelection: true,
   );
   DateTime selectedDate = DateTime.now();
@@ -77,30 +81,35 @@ class _RegisterFormState extends State<RegisterForm> {
   GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
   Color expandableColor = Colors.black87;
   String currentCaseId = "null";
-  late File selectedfile;
+  late FilePickerResult? filePickerResult;
   late Response response;
-  String? progress;
+  String progress = "Select file";
   Dio dio = new Dio();
   bool uploadedAFile = false;
   String? filePathOnServer = "null";
-
+  static const Color TF_BG_COLOR = Colors.white;
+  UKCase caseInfoHolder = UKCase();
   @override
   void initState() {
     super.initState();
 
     /// Attach a listener which will update the state and refresh the page index
     _formsPageViewController.addListener(() {
-      if (_formsPageViewController.page!.round() != currentPage) {
-        setState(() {
-          currentPage = _formsPageViewController.page!.round();
-        });
+      try {
+        if (_formsPageViewController.page!.round() != currentPage) {
+          setState(() {
+            currentPage = _formsPageViewController.page!.round();
+          });
+        }
+      } catch (e) {
+        print("Page index not updated");
       }
     });
   }
 
   @override
   void dispose() {
-   // _formsPageViewController.dispose();
+    _formsPageViewController.dispose();
     super.dispose();
   }
 
@@ -109,6 +118,7 @@ class _RegisterFormState extends State<RegisterForm> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height - 350.h;
 
+    refillLists();
     _forms = [
       WillPopScope(
           onWillPop: () => Future.sync(this.onWillPop),
@@ -155,7 +165,7 @@ class _RegisterFormState extends State<RegisterForm> {
           width: screenWidth,
           height: screenHeight,
           child: Scaffold(
-            body: _attachments(context),
+            body: _attachmentsAndNotes(context),
           ),
         ),
       ),
@@ -196,7 +206,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       currentPage = index;
                       return Stack(
                         children: [
-                          SingleChildScrollView(child: _forms[index]),
+                          SingleChildScrollView(child: _forms![index]),
                           isKeyboardVisible
                               ? SizedBox()
                               : _bottomNavBar(context)
@@ -287,8 +297,12 @@ class _RegisterFormState extends State<RegisterForm> {
                         master3D.text,
                         translucency.toString(),
                         surfaceTexture.toString(),
-                        enclosedItems.selectedItem,
-                        miscellaneous.selectedItem,
+                        enclosedItems.selectedItem == null
+                            ? []
+                            : enclosedItems.selectedItem,
+                        miscellaneous.selectedItem == null
+                            ? []
+                            : miscellaneous.selectedItem,
                         prosthetics.selectedItem,
                         crownBridgeMetalFree.selectedItem,
                         crownBridgeMetalRestoration.selectedItem,
@@ -330,10 +344,7 @@ class _RegisterFormState extends State<RegisterForm> {
       duration: Duration(milliseconds: 300),
       curve: Curves.ease,
     );
-setState(() {
-
-});
-    print("Enclosed: ${enclosedItems.selectedItem}");
+    setState(() {});
   }
 
   void _previousFormStep() {
@@ -341,25 +352,20 @@ setState(() {
       duration: Duration(milliseconds: 300),
       curve: Curves.ease,
     );
-    setState(() {
-
-    });
-    print("Enclosed: ${enclosedItems.selectedItem}");
+    setState(() {});
   }
 
   bool onWillPop() {
-    print("Enclosed: ${enclosedItems.selectedItem}");
     if (_formsPageViewController.page!.round() ==
         _formsPageViewController.initialPage) return true;
     _formsPageViewController.previousPage(
       duration: Duration(milliseconds: 300),
       curve: Curves.ease,
     );
-    print("Enclosed: ${enclosedItems.selectedItem}");
+
     return false;
   }
 
-  static const Color TF_BG_COLOR = Colors.white;
   Widget _caseDetails1(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -823,7 +829,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.enclosedItems = data;
               },
               isExpandableTitle: true,
             ),
@@ -859,7 +865,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.miscellaneous = data;
               },
               isExpandableTitle: true,
             ),
@@ -893,7 +899,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.prosthetics = data;
               },
               isExpandableTitle: true,
             ),
@@ -931,7 +937,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.crownBridgeMetalFree = data;
               },
               isExpandableTitle: true,
             ),
@@ -963,7 +969,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.crownBridgeMetalRestoration = data;
               },
               isExpandableTitle: true,
             ),
@@ -993,7 +999,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.implantWorkMetalFree = data;
               },
               isExpandableTitle: true,
             ),
@@ -1023,7 +1029,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.implantWorkMetalRestoration = data;
               },
               isExpandableTitle: true,
             ),
@@ -1051,7 +1057,7 @@ setState(() {
               checkFirstElement: false,
               helperGroupTitle: true,
               onItemSelected: (data) {
-                print(data);
+                caseInfoHolder.implantWorkAllOn46 = data;
               },
               isExpandableTitle: true,
             ),
@@ -1104,7 +1110,7 @@ setState(() {
                 checkFirstElement: false,
                 helperGroupTitle: true,
                 onItemSelected: (data) {
-                  print(data);
+                  caseInfoHolder.selectedUnitsUL = data;
                 },
                 isExpandableTitle: true,
               ),
@@ -1142,7 +1148,7 @@ setState(() {
                 checkFirstElement: false,
                 helperGroupTitle: true,
                 onItemSelected: (data) {
-                  print(data);
+                  caseInfoHolder.selectedUnitsUR = data;
                 },
                 isExpandableTitle: true,
               ),
@@ -1180,7 +1186,7 @@ setState(() {
                 checkFirstElement: false,
                 helperGroupTitle: true,
                 onItemSelected: (data) {
-                  print(data);
+                  caseInfoHolder.selectedUnitsLL = data;
                 },
                 isExpandableTitle: true,
               ),
@@ -1218,7 +1224,7 @@ setState(() {
                 checkFirstElement: false,
                 helperGroupTitle: true,
                 onItemSelected: (data) {
-                  print(data);
+                  caseInfoHolder.selectedUnitsLR = data;
                 },
                 isExpandableTitle: true,
               ),
@@ -1229,7 +1235,7 @@ setState(() {
     );
   }
 
-  Widget _attachments(BuildContext context) {
+  Widget _attachmentsAndNotes(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -1244,16 +1250,14 @@ setState(() {
                 Container(
                   margin: EdgeInsets.all(10),
                   //show file name here
-                  child: progress == null
-                      ? Text("")
-                      : Text(
-                          basename(progress!),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold),
-                        ),
+                  child: Text(
+                    basename(progress),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold),
+                  ),
                   //show progress status here
                 ),
                 Container(
@@ -1290,17 +1294,74 @@ setState(() {
             )));
   }
 
-  uploadFile() async {
+  void refillLists() {
+    enclosedItems = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.enclosedItems);
+    miscellaneous = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.miscellaneous);
+    prosthetics = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.prosthetics);
+    crownBridgeMetalFree = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.crownBridgeMetalFree);
+    crownBridgeMetalRestoration = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.crownBridgeMetalRestoration);
+    implantWorkMetalFree = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.implantWorkMetalFree);
+    implantWorkMetalRestoration = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.implantWorkMetalRestoration);
+    implantWorkAllOn46 = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.implantWorkAllOn46);
+    selectedUnitsUR = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.selectedUnitsUR);
+    selectedUnitsUL = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.selectedUnitsUL);
+    selectedUnitsLL = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.selectedUnitsLL);
+    selectedUnitsLR = GroupController(
+        isMultipleSelection: true,
+        initSelectedItem: caseInfoHolder.selectedUnitsLR);
+  }
+
+  selectFile() async {
+    filePickerResult = await FilePicker.platform
+        .pickFiles(type: FileType.any, allowMultiple: true);
+    List<File> files = [];
+    if (filePickerResult != null) {
+      List<File> files =
+          filePickerResult!.paths.map((path) => File(path!)).toList();
+    } else {
+      // User canceled the picker
+    }
+
+    files.forEach((File file) {
+      progress = "Uploading..";
+      uploadFile(file.path);
+    });
+    //update the UI so that file name is shown
+  }
+
+  uploadFile(String filePath) async {
     String uploadurl = "http://lab.manshore.com/file_upload.php";
     // don't use http://localhost , because emulator don't get that address
     // instead use your local IP address or use live URL
     // hit "ipconfig" in windows or "ip a" in linux to get you local IP
 
     FormData formdata = FormData.fromMap({
-      "file": await MultipartFile.fromFile(selectedfile.path,
-          filename: basename(selectedfile.path)
-          //show only filename from path
-          ),
+      "file":
+          await MultipartFile.fromFile(filePath, filename: basename(filePath)
+              //show only filename from path
+              ),
       "case_id": currentCaseId
     });
 
@@ -1330,33 +1391,6 @@ setState(() {
     } else {
       print("Error during connection to server. code: ${response.statusCode}");
     }
-  }
-
-  selectFile() async {
-    /*
-    selectedfile = await FilePicker.getFile(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'mp4'],
-      //allowed extension to choose
-    );*/
-
-    //for file_pocker plugin version 2 or 2+
-    /*
-    FilePickerResult result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'pdf', 'mp4'],
-      //allowed extension to choose
-    );
-
-    if (result != null) {
-      //if there is selected file
-      selectedfile = File(result.files.single.path);
-    } */
-
-    setState(() {
-      progress = "Uploading..";
-    });
-    uploadFile(); //update the UI so that file name is shown
   }
 
   createFileRecordInDB() {
