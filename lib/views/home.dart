@@ -10,7 +10,6 @@ import 'package:mosaic_doctors/services/auth_service.dart';
 import 'package:mosaic_doctors/services/implantsDatabase.dart';
 import 'package:mosaic_doctors/services/labDatabase.dart';
 import 'package:mosaic_doctors/services/notifications.dart';
-import 'package:mosaic_doctors/services/security.dart';
 import 'package:mosaic_doctors/shared/font_styles.dart';
 import 'package:mosaic_doctors/shared/globalVariables.dart';
 import 'package:mosaic_doctors/shared/locator.dart';
@@ -32,6 +31,10 @@ class _homeViewState extends State<HomeView> {
 
   List<PopupMenuEntry<String>> options = [];
   getDoctorData() async {
+    if (Global.prefs == null) {
+      await Global.initializeSharedPreferences();
+    }
+    if (Global.prefs == null) AuthService.signOut();
     Doctor? doctor =
         await (LabDatabase.getDoctorInfo(Global.prefs!.getString("phoneNo")!));
     if (doctor == null) {
@@ -47,13 +50,13 @@ class _homeViewState extends State<HomeView> {
   }
 
   checkSession() async {
-    Future.delayed(Duration(seconds: 3));
+    /* Future.delayed(Duration(seconds: 3));
     if (await Security.checkSession() == SessionStatus.inValid) {
       print("Session status : invalid");
       AuthService.signOut();
     } else {
       print("Session status : valid");
-    }
+    }*/
   }
 
   @override

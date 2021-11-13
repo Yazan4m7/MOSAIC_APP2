@@ -2,14 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mosaic_doctors/SignIn_with_phone.dart';
 import 'package:mosaic_doctors/models/sessionData.dart';
-import 'package:mosaic_doctors/services/security.dart';
 import 'package:mosaic_doctors/shared/globalVariables.dart';
 import 'package:mosaic_doctors/shared/locator.dart';
-import 'package:mosaic_doctors/shared/responsive_helper.dart';
 import 'package:mosaic_doctors/views/home.dart';
-
-import 'notifications_old.dart';
-
 
 class AuthService {
   getUserData() {
@@ -19,7 +14,6 @@ class AuthService {
   }
 
   handleAuth() {
-
     return StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext context, snapshot) {
@@ -43,7 +37,7 @@ class AuthService {
 //        return HomeView();
 //      }
 //    });
-  print("handleAuth()");
+    print("handleAuth()");
 //    return StreamBuilder(
 //        stream: FirebaseAuth.instance.authStateChanges,
 //        builder: (BuildContext context, snapshot) {
@@ -65,22 +59,19 @@ class AuthService {
   }
 
   static signOut() {
-
     FirebaseAuth.instance.signOut();
   }
 
   //SignIn
   signIn(AuthCredential authCreds) async {
-
     try {
       await FirebaseAuth.instance.signInWithCredential(authCreds);
 
-      Security.registerSession();
+      // Security.registerSession();
       handleAuth();
-    }catch(e){
+    } catch (e) {
       print(e.toString());
-      getIt<SessionData>().loginWelcomeMessage =
-      " Error: ${e.toString()}";
+      getIt<SessionData>().loginWelcomeMessage = " Error: ${e.toString()}";
       AuthService.signOut();
     }
     //  UserController.registerNotificationToken();
@@ -88,8 +79,8 @@ class AuthService {
   }
 
   signInWithOTP(phoneNo, smsCode, verId) {
-    AuthCredential authCreds = PhoneAuthProvider.credential(
-        verificationId: verId, smsCode: smsCode);
+    AuthCredential authCreds =
+        PhoneAuthProvider.credential(verificationId: verId, smsCode: smsCode);
 //    auth user will be connected to store by phone number, no need for a user record.
 //    registerUserToFireStore (phoneNo);
 
@@ -132,7 +123,7 @@ class AuthService {
 //        .map(_userFromFirebaseUser);
 //  }
 //
-  // sign in anon
+// sign in anon
 //  Future signInAnon() async {
 //    try {
 //      AuthResult result = await _auth.signInAnonymously();
