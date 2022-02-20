@@ -81,7 +81,7 @@ class _LabEntryRowState extends State<LabEntryRow> {
             Container(
               padding: EdgeInsets.only(left: labCellsLeftPadding),
               width: rowWidth / labBalanceCellWidthFactor,
-              child: Text(root.balance!,
+              child: Text(double.parse(root.balance!).toStringAsFixed(2),
                   style: MyFontStyles.statementEntryFontStyle(context),
                   textAlign: TextAlign.left),
             )

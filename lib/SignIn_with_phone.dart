@@ -231,15 +231,13 @@ class _LoginPageState extends State<LoginPage> {
                                             smsCodeTxtController.text,
                                             verificationId);
                                       } else {
+                                        verifyPhone(phoneCode +
+                                            phoneNoTxtController.text);
                                         startTimer();
-                                        print(
-                                            "Setting phone number ${phoneCode + phoneNoTxtController.text}");
                                         Global.prefs!.setString(
                                             "phoneNo",
                                             phoneCode +
                                                 phoneNoTxtController.text);
-                                        verifyPhone(phoneCode +
-                                            phoneNoTxtController.text);
                                       }
                                     })),
                                 codeSent
@@ -249,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                                         child: Column(
                                           children: [
                                             Text(
-                                              "Didnt recieve the code ? please allow $_start seconds and re-send",
+                                              "Didn't receive the code ? please allow $_start seconds and re-send",
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.black),
@@ -262,14 +260,15 @@ class _LoginPageState extends State<LoginPage> {
                                                     onPressed: () {
                                                       print(
                                                           "Setting phone number ${phoneCode + phoneNoTxtController.text}");
+                                                      verifyPhone(phoneCode +
+                                                          phoneNoTxtController
+                                                              .text);
                                                       Global.prefs!.setString(
                                                           "phoneNo",
                                                           phoneCode +
                                                               phoneNoTxtController
                                                                   .text);
-                                                      verifyPhone(phoneCode +
-                                                          phoneNoTxtController
-                                                              .text);
+
                                                       startTimer();
                                                     })
                                                 : RaisedButton(

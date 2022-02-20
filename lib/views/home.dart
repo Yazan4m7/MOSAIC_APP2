@@ -37,9 +37,23 @@ class _homeViewState extends State<HomeView> {
     if (Global.prefs == null) AuthService.signOut();
     Doctor? doctor =
         await (LabDatabase.getDoctorInfo(Global.prefs!.getString("phoneNo")!));
+    if (getIt<SessionData>().doctor!.isBlockedDueToBalance == '1') {
+      getIt<SessionData>().loginWelcomeMessage =
+          "Your Account has been blocked due to outstanding balance";
+      print("Blocked Due outstanding balance, signing out");
+      AuthService.signOut();
+      return;
+    }
+    if (getIt<SessionData>().doctor!.blocked == '1') {
+      getIt<SessionData>().loginWelcomeMessage =
+          "Your Account has been blocked";
+      print("Account blocked, signing out");
+      AuthService.signOut();
+      return;
+    }
     if (doctor == null) {
       getIt<SessionData>().loginWelcomeMessage =
-          "Number not assiocated with a doctor account, please contact MOSAIC";
+          "Number not associated with a doctor account, please contact MOSAIC";
       print("doc is null");
       AuthService.signOut();
     } else {
@@ -50,13 +64,15 @@ class _homeViewState extends State<HomeView> {
   }
 
   checkSession() async {
-    /* Future.delayed(Duration(seconds: 3));
-    if (await Security.checkSession() == SessionStatus.inValid) {
-      print("Session status : invalid");
+    Future.delayed(Duration(seconds: 2));
+    if (getIt<SessionData>().doctor!.isBlockedDueToBalance == '1') {
+      getIt<SessionData>().loginWelcomeMessage =
+          "Your Account has been blocked due to outstanding balance.";
+      print("Blocked Due outstanding balance, signing out");
       AuthService.signOut();
     } else {
-      print("Session status : valid");
-    }*/
+      print("Account not blocked due to balance");
+    }
   }
 
   @override
@@ -149,8 +165,8 @@ class _homeViewState extends State<HomeView> {
                               getIt<SessionData>().doctor!.id == "103"
                                   ? "" + doctorName!
                                   : (getIt<SessionData>().countryCode == "JO"
-                                      ? "د. " + doctorName!
-                                      : "Dr. " + doctorName!),
+                                      ? "" + doctorName!
+                                      : "" + doctorName!),
                               style: MyFontStyles.doctorNameFontStyle(context),
                             )),
                         SizedBox(

@@ -1,7 +1,7 @@
 name: mosaic_doctors
 description: MOSAIC doctors app
 publish_to: 'none'
-version: 4.0.1+401
+version: 4.1.0+410
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
@@ -45,6 +45,7 @@ dependencies:
   path: ^1.6.4
   sticky_headers: "^0.1.8"
   smart_select: ^4.3.2
+  webview_flutter: ^2.3.1
   flutter_localizations:
     sdk: flutter
 dev_dependencies:

@@ -1,20 +1,14 @@
 // Create the Widget for the row
 import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:marquee/marquee.dart';
-import 'package:mosaic_doctors/models/AccountStatementEntry.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:mosaic_doctors/models/implantStatementRowModel.dart';
-import 'package:mosaic_doctors/models/previousMonthBalance.dart';
 import 'package:mosaic_doctors/services/implantsDatabase.dart';
 import 'package:mosaic_doctors/shared/Constants.dart';
-
 import 'package:mosaic_doctors/shared/customDialogBox.dart';
 import 'package:mosaic_doctors/shared/font_styles.dart';
 import 'package:mosaic_doctors/shared/responsive_helper.dart';
 import 'package:mosaic_doctors/shared/widgets.dart';
-
-import 'package:mosaic_doctors/views/caseDetailsView.dart';
 
 class ImplantsEntryRow extends StatefulWidget {
   ImplantsEntryRow(this.entry);
@@ -32,7 +26,7 @@ class _ImplantsEntryRowState extends State<ImplantsEntryRow> {
     String implantName = root.entry!.split(' ')[0];
     String implantSize = root.entry!.split(' ')[1];
     String identifier =
-    root.identifier == 'N/A' ? '' : '                 ' + root.identifier!;
+        root.identifier == 'N/A' ? '' : '                 ' + root.identifier!;
     String minusIfReturn =
         (root.type == 'Failure' || root.type == 'Exchange') ? '-' : '';
     return InkWell(
@@ -84,14 +78,18 @@ class _ImplantsEntryRowState extends State<ImplantsEntryRow> {
                               .copyWith(
                                   height: 1.3,
                                   fontSize:
-                          Responsiveness.entryFontSize!.sp - 5.sp)),
+                                      Responsiveness.entryFontSize!.sp - 5.sp)),
                     ],
                   ),
                 )),
             Container(
               padding: EdgeInsets.all(0),
               width: rowWidth / implantsTypeCellWidthFactor,
-              child: Text( root.type != 'Payment' ? ImplantsDatabase.nbTransTypes[int.parse(root.type!)]!.type! : root.type!,
+              child: Text(
+                  root.type != 'Payment'
+                      ? ImplantsDatabase
+                          .nbTransTypes[int.parse(root.type!)]!.type!
+                      : root.type!,
                   style: MyFontStyles.statementEntryFontStyle(context)
                       .copyWith(fontSize: 33.sp),
                   textAlign: TextAlign.left),
@@ -108,7 +106,12 @@ class _ImplantsEntryRowState extends State<ImplantsEntryRow> {
               padding: EdgeInsets.only(left: 3, right: 0),
               width: rowWidth / implantsPriceCellWidthFactor,
               child: Text(
-                  root.qty == "-" ? "-" : (ImplantsDatabase.nbTransTypes[int.parse(root.type!)]!.factor! * int.parse(root.unitPrice!)).toString(),
+                  root.qty == "-"
+                      ? "-"
+                      : (ImplantsDatabase.nbTransTypes[int.parse(root.type!)]!
+                                  .factor! *
+                              int.parse(root.unitPrice!))
+                          .toString(),
                   style:
                       MyFontStyles.statementEntryFontStyle(context).copyWith(),
                   textAlign: TextAlign.left),
@@ -123,7 +126,7 @@ class _ImplantsEntryRowState extends State<ImplantsEntryRow> {
             Container(
               padding: EdgeInsets.all(1),
               width: rowWidth / implantsBalanceCellWidthFactor,
-              child: Text(root.balance!,
+              child: Text(double.parse(root.balance!).toStringAsFixed(3),
                   style: MyFontStyles.statementEntryFontStyle(context),
                   textAlign: TextAlign.left),
             )

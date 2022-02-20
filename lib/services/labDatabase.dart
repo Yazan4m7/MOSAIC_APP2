@@ -1,10 +1,12 @@
 import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'package:jiffy/jiffy.dart';
 import 'package:mosaic_doctors/models/AccountStatementEntry.dart';
 import 'package:mosaic_doctors/models/case.dart';
 import 'package:mosaic_doctors/models/discount.dart';
-import 'package:mosaic_doctors/models/job.dart';
 import 'package:mosaic_doctors/models/doctor.dart';
+import 'package:mosaic_doctors/models/job.dart';
 import 'package:mosaic_doctors/models/jobType.dart';
 import 'package:mosaic_doctors/models/material.dart';
 import 'package:mosaic_doctors/models/payment.dart';
@@ -13,7 +15,6 @@ import 'package:mosaic_doctors/models/sessionData.dart';
 import 'package:mosaic_doctors/models/statementTotals.dart';
 import 'package:mosaic_doctors/services/auth_service.dart';
 import 'package:mosaic_doctors/shared/Constants.dart';
-import 'package:http/http.dart' as http;
 import 'package:mosaic_doctors/shared/locator.dart';
 
 class LabDatabase {
@@ -240,11 +241,13 @@ class LabDatabase {
       await getDoctorAccountStatement(getIt<SessionData>().doctor!.id, false);
 
     totals = StatementTotals();
-    AccountStatementEntry firstEntryOfTheMonth= AccountStatementEntry();
-    try{
-      AccountStatementEntry firstEntryOfTheMonth = accountStatementEntries
+    print('length: ' + accountStatementEntries.length.toString());
+    AccountStatementEntry firstEntryOfTheMonth = AccountStatementEntry();
+    try {
+      firstEntryOfTheMonth = accountStatementEntries
           .where((element) =>
-      element.createdAt!.substring(2, 7) == currentMonth.format("yy-MM"))
+              element.createdAt!.substring(2, 7) ==
+              currentMonth.format("yy-MM"))
           .first;
       if (firstEntryOfTheMonth.credit != "N/A")
         totals.openingBalance = double.parse(firstEntryOfTheMonth.balance!) +
@@ -252,12 +255,13 @@ class LabDatabase {
       else
         totals.openingBalance = double.parse(firstEntryOfTheMonth.balance!) -
             double.parse(firstEntryOfTheMonth.debit!);
-    } catch(e){
-      print("[getAccountStatementTotals] No first Entry of month found, month: "+currentMonth.toString());
+    } catch (e) {
+      totals.openingBalance =
+          double.parse(accountStatementEntries.last.balance!);
+      print(
+          "[getAccountStatementTotals] No first Entry of month found, month: " +
+              currentMonth.MMMM);
     }
-
-
-
 
     accountStatementEntries
         .where((element) =>

@@ -23,7 +23,7 @@ main() async {
     debugShowCheckedModeBanner: false,
     home: MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: EntryPoint()),
+      home: Scaffold(resizeToAvoidBottomInset: false, body: EntryPoint()),
     ),
   ));
 }

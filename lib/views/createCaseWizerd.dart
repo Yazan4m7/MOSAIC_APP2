@@ -67,9 +67,10 @@ class _RegisterFormState extends State<RegisterForm> {
   String progress = "Select file";
   Dio dio = new Dio();
   bool uploadedAFile = false;
+  bool uploading = false;
   String? filePathOnServer = "null";
   static const Color TF_BG_COLOR = Colors.white;
-  int filesUploaded = 0;
+  static int filesUploaded = 0;
   UKCase caseInfoHolder = UKCase();
   @override
   void initState() {
@@ -85,6 +86,7 @@ class _RegisterFormState extends State<RegisterForm> {
         print("Page index not updated");
       }
     });
+    filesUploaded = 0;
     super.initState();
   }
 
@@ -101,7 +103,7 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height - 350.h;
-    filesUploaded = 0;
+
     refillLists();
 
     _forms = [
@@ -175,7 +177,9 @@ class _RegisterFormState extends State<RegisterForm> {
                     null,
                     currentPage < 1
                         ? () {
-                            Navigator.of(context).pop();
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    LabStatementMainScreen()));
                           }
                         : _previousFormStep,
                     Colors.white,
@@ -259,51 +263,57 @@ class _RegisterFormState extends State<RegisterForm> {
                 style: ButtonStyle(
                   padding: MaterialStateProperty.all(
                       EdgeInsets.symmetric(vertical: 12)),
-                  backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
+                  backgroundColor: MaterialStateProperty.all(
+                      uploading ? Colors.black12 : Colors.blueAccent),
                   foregroundColor: MaterialStateProperty.all(Colors.white),
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.zero))),
                 ),
-                onPressed: () async {
-                  print("Current Page : $currentPage");
-                  if (currentPage < 4)
-                    _nextFormStep();
-                  else
-                    SharedWidgets.showMOSAICDialog(
-                        "Case Created Successfully", context, "SUCCESS", () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => LabStatementMainScreen()));
-                    });
-                  if (currentPage == 3) {
-                    currentCaseId = await ExternalCasesController.createCase(
-                        patientName.text,
-                        address.text,
-                        dateIn.text,
-                        dateReturn.text,
-                        tel.text,
-                        email.text,
-                        jobNo.text,
-                        stumpShade.text,
-                        vitaClassic.text,
-                        master3D.text,
-                        translucency.toString(),
-                        surfaceTexture.toString(),
-                        caseInfoHolder.enclosedItems,
-                        caseInfoHolder.miscellaneous,
-                        caseInfoHolder.prosthetics,
-                        caseInfoHolder.crownBridgeMetalFree,
-                        caseInfoHolder.crownBridgeMetalRestoration,
-                        caseInfoHolder.implantWorkMetalFree,
-                        caseInfoHolder.implantWorkMetalRestoration,
-                        caseInfoHolder.implantWorkAllOn46,
-                        caseInfoHolder.selectedUnitsUL,
-                        caseInfoHolder.selectedUnitsUR,
-                        caseInfoHolder.selectedUnitsLL,
-                        caseInfoHolder.selectedUnitsLR,
-                        notes.text);
-                    if (currentCaseId == 'null') return;
-                  }
-                },
+                onPressed: uploading
+                    ? null
+                    : () async {
+                        print("Current Page : $currentPage");
+                        if (currentPage < 4)
+                          _nextFormStep();
+                        else
+                          SharedWidgets.showMOSAICDialog(
+                              "Case Created Successfully", context, "SUCCESS",
+                              () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) =>
+                                    LabStatementMainScreen()));
+                          });
+                        if (currentPage == 3) {
+                          currentCaseId =
+                              await ExternalCasesController.createCase(
+                                  patientName.text,
+                                  address.text,
+                                  dateIn.text,
+                                  dateReturn.text,
+                                  tel.text,
+                                  email.text,
+                                  jobNo.text,
+                                  stumpShade.text,
+                                  vitaClassic.text,
+                                  master3D.text,
+                                  translucency.toString(),
+                                  surfaceTexture.toString(),
+                                  caseInfoHolder.enclosedItems,
+                                  caseInfoHolder.miscellaneous,
+                                  caseInfoHolder.prosthetics,
+                                  caseInfoHolder.crownBridgeMetalFree,
+                                  caseInfoHolder.crownBridgeMetalRestoration,
+                                  caseInfoHolder.implantWorkMetalFree,
+                                  caseInfoHolder.implantWorkMetalRestoration,
+                                  caseInfoHolder.implantWorkAllOn46,
+                                  caseInfoHolder.selectedUnitsUL,
+                                  caseInfoHolder.selectedUnitsUR,
+                                  caseInfoHolder.selectedUnitsLL,
+                                  caseInfoHolder.selectedUnitsLR,
+                                  notes.text);
+                          if (currentCaseId == 'null') return;
+                        }
+                      },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -1446,7 +1456,7 @@ class _RegisterFormState extends State<RegisterForm> {
               ),
       "case_id": currentCaseId
     });
-
+    uploading = true;
     response = await dio.post(
       uploadurl,
       data: formdata,
@@ -1456,7 +1466,7 @@ class _RegisterFormState extends State<RegisterForm> {
           if (double.parse(percentage) > 99) {
             progress = "$filesUploaded Files Uploaded Successfully";
           } else
-            progress = "Uploading";
+            progress = "Uploading ($percentage%)";
           //update the progress
         });
       },
@@ -1466,11 +1476,13 @@ class _RegisterFormState extends State<RegisterForm> {
       print(response.toString());
       //print response from server
       setState(() {
+        uploading = false;
         uploadedAFile = true;
         filePathOnServer = response.data['filePath'];
       });
       createFileRecordInDB();
     } else {
+      uploading = false;
       print("Error during connection to server. code: ${response.statusCode}");
     }
   }

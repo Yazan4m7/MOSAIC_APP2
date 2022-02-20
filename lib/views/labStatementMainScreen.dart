@@ -19,7 +19,7 @@ import 'package:mosaic_doctors/shared/locator.dart';
 import 'package:mosaic_doctors/shared/responsive_helper.dart';
 import 'package:mosaic_doctors/shared/widgets.dart';
 import 'package:mosaic_doctors/views/StatementEntryRow.dart';
-import 'package:mosaic_doctors/views/paymentView.dart';
+import 'package:mosaic_doctors/views/paymentTypeSelection.dart';
 
 import '../SignIn_with_phone.dart';
 import 'createCaseWizerd.dart';
@@ -40,7 +40,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
   bool isOldestMonth = false;
   Jiffy twoMonthsAgo = Jiffy()..subtract(months: 2);
   bool isNewestMonth = true;
-
+  Future? totals;
   static Jiffy currentMonth = Jiffy();
   StatementTotals? totalsItem;
   List<PopupMenuEntry<String>> options = [];
@@ -336,7 +336,6 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
         });
   }
 
-  Future? totals;
   Widget _buildBottomCounters(double? screenHeight, double? screenWidth) {
     Locale locale = Localizations.localeOf(context);
     var format = NumberFormat.simpleCurrency(locale: locale.toString());
@@ -478,7 +477,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
                         ),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => PaymentView()));
+                              builder: (context) => PaymentTypeSelection()));
                           //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
                         },
                       ))
@@ -486,208 +485,225 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
               ),
             );
           // print(totalsItem.totalDebit.toString()+ ' ' + totalsItem.openingBalance.toString()+ ' ' + totalsItem.totalCredit.toString());
-          return Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.only(
-                      left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: Colors.grey.withOpacity(0.4),
-                          offset: const Offset(0, -2),
-                          blurRadius: 8.0),
-                    ],
-                  ),
-                  height: screenHeight / 12,
-                  width: screenWidth,
-                  child: Row(
-                    children: [
-                      Flexible(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Credit: "),
-                            Row(
-                              children: [
-                                Text(formatter.format(totalsItem!.totalCredit),
-                                    style:
-                                        MyFontStyles.statementHeaderFontStyle(
-                                            context)),
-                                Text(" ${getIt<SessionData>().countryCurrency}")
-                              ],
-                            ),
-                          ],
+          else {
+            print(totalsItem!.totalDebit.toString() +
+                " " +
+                totalsItem!.openingBalance.toString() +
+                " " +
+                totalsItem!.totalCredit.toString() +
+                openingBalance.toString());
+            return Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(
+                        left: screenWidth! / 8, top: (screenHeight! / 12) / 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                            color: Colors.grey.withOpacity(0.4),
+                            offset: const Offset(0, -2),
+                            blurRadius: 8.0),
+                      ],
+                    ),
+                    height: screenHeight / 12,
+                    width: screenWidth,
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Credit: "),
+                              Row(
+                                children: [
+                                  Text(
+                                      totalsItem!.totalCredit
+                                          .toStringAsFixed(2),
+                                      style:
+                                          MyFontStyles.statementHeaderFontStyle(
+                                              context)),
+                                  Text(
+                                      " ${getIt<SessionData>().countryCurrency}")
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Flexible(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Debit: "),
-                            Row(
-                              children: [
-                                Text(formatter.format(totalsItem!.totalDebit),
-                                    style:
-                                        MyFontStyles.statementHeaderFontStyle(
-                                            context),
-                                    textAlign: TextAlign.left),
-                                Text(" ${getIt<SessionData>().countryCurrency}",
-                                    style: TextStyle())
-                              ],
-                            ),
-                          ],
+                        Flexible(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Debit: "),
+                              Row(
+                                children: [
+                                  Text(
+                                      totalsItem!.totalDebit.toStringAsFixed(2),
+                                      style:
+                                          MyFontStyles.statementHeaderFontStyle(
+                                              context),
+                                      textAlign: TextAlign.left),
+                                  Text(
+                                      " ${getIt<SessionData>().countryCurrency}",
+                                      style: TextStyle())
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Flexible(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Balance: "),
-                            Row(
-                              children: [
-                                Text(
+                        Flexible(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Balance: "),
+                              Row(
+                                children: [
+                                  Text(
                                     getIt<SessionData>().doctor!.balance ==
                                             "N/A"
                                         ? "0"
-                                        : formatter.format(
-                                            totalsItem!.totalDebit +
+                                        : (totalsItem!.totalDebit +
                                                 totalsItem!.openingBalance -
-                                                totalsItem!.totalCredit),
+                                                totalsItem!.totalCredit)
+                                            .toStringAsFixed(2),
                                     style:
                                         MyFontStyles.statementHeaderFontStyle(
                                                 context)
                                             .copyWith(
                                       fontSize:
                                           Responsiveness.entryFontSize!.sp + 3,
-                                    )),
-                                Text(" ${getIt<SessionData>().countryCurrency}")
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                (getIt<SessionData>().countryCode != "JO" &&
-                        getIt<SessionData>().doctor!.canCreateCase == '1')
-                    ? Container(
-                        margin:
-                            EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                        decoration: BoxDecoration(
-                          color: Colors.lightBlue.shade700,
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                offset: const Offset(0, 2),
-                                blurRadius: 8.0),
-                          ],
-                        ),
-                        height: screenHeight / 13,
-                        width: screenWidth + 16,
-                        child: FlatButton(
-                          textColor: Colors.white,
-                          splashColor: Colors.white70,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 28.0.w),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Icon(
-                                  Icons.add_to_queue,
-                                  size: 80.w,
-                                  color: Colors.white,
-                                ),
-                                Text("CREATE A NEW CASE",
-                                    style: TextStyle(
-                                        fontSize: 43.sp, color: Colors.white)),
-                                Container(
-                                  width: 60.w,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 5),
-                                  child: FlatButton(
-                                    shape: new RoundedRectangleBorder(
-                                        borderRadius:
-                                            new BorderRadius.circular(28.0)),
-                                    splashColor: Colors.white,
-                                    color: Colors.transparent,
-                                    child: Icon(Icons.arrow_forward_rounded,
-                                        color: Colors.white),
-                                    onPressed: () => {},
+                                    ),
                                   ),
-                                )
-                              ],
-                            ),
+                                  Text(
+                                      " ${getIt<SessionData>().countryCurrency}")
+                                ],
+                              ),
+                            ],
                           ),
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => RegisterForm()));
-                            //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
-                          },
-                        ))
-                    : SizedBox(),
-                Container(
-                    decoration: BoxDecoration(
-                      color: Colors.black87.withOpacity(0.8),
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            offset: const Offset(0, 2),
-                            blurRadius: 8.0),
+                        )
                       ],
                     ),
-                    height: screenHeight / 13,
-                    width: screenWidth + 16,
-                    child: FlatButton(
-                      textColor: Colors.white,
-                      splashColor: Colors.grey,
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 28.0.w),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(
-                              Icons.credit_card,
-                              size: 80.w,
-                            ),
-                            Text("MAKE A PAYMENT",
-                                style: TextStyle(fontSize: 43.sp)),
-                            Container(
-                              width: 60.w,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 5),
-                              child: FlatButton(
-                                shape: new RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(28.0)),
-                                splashColor: Colors.white,
-                                color: Colors.transparent,
-                                child: Icon(Icons.arrow_forward_rounded,
-                                    color: Colors.white),
-                                onPressed: () => {},
+                  ),
+                  (getIt<SessionData>().countryCode != "JO" &&
+                          getIt<SessionData>().doctor!.canCreateCase == '1')
+                      ? Container(
+                          margin:
+                              EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                          decoration: BoxDecoration(
+                            color: Colors.lightBlue.shade700,
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  offset: const Offset(0, 2),
+                                  blurRadius: 8.0),
+                            ],
+                          ),
+                          height: screenHeight / 13,
+                          width: screenWidth + 16,
+                          child: FlatButton(
+                            textColor: Colors.white,
+                            splashColor: Colors.white70,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 28.0.w),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Icon(
+                                    Icons.add_to_queue,
+                                    size: 80.w,
+                                    color: Colors.white,
+                                  ),
+                                  Text("CREATE A NEW CASE",
+                                      style: TextStyle(
+                                          fontSize: 43.sp,
+                                          color: Colors.white)),
+                                  Container(
+                                    width: 60.w,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0, horizontal: 5),
+                                    child: FlatButton(
+                                      shape: new RoundedRectangleBorder(
+                                          borderRadius:
+                                              new BorderRadius.circular(28.0)),
+                                      splashColor: Colors.white,
+                                      color: Colors.transparent,
+                                      child: Icon(Icons.arrow_forward_rounded,
+                                          color: Colors.white),
+                                      onPressed: () => {},
+                                    ),
+                                  )
+                                ],
                               ),
-                            )
-                          ],
-                        ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => RegisterForm()));
+                              //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
+                            },
+                          ))
+                      : SizedBox(),
+                  Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black87.withOpacity(0.8),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              offset: const Offset(0, 2),
+                              blurRadius: 8.0),
+                        ],
                       ),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => PaymentView()));
-                        //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
-                      },
-                    ))
-              ],
-            ),
-          );
+                      height: screenHeight / 13,
+                      width: screenWidth + 16,
+                      child: FlatButton(
+                        textColor: Colors.white,
+                        splashColor: Colors.grey,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 28.0.w),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                Icons.credit_card,
+                                size: 80.w,
+                              ),
+                              Text("MAKE A PAYMENT",
+                                  style: TextStyle(fontSize: 43.sp)),
+                              Container(
+                                width: 60.w,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 5),
+                                child: FlatButton(
+                                  shape: new RoundedRectangleBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(28.0)),
+                                  splashColor: Colors.white,
+                                  color: Colors.transparent,
+                                  child: Icon(Icons.arrow_forward_rounded,
+                                      color: Colors.white),
+                                  onPressed: () => {},
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PaymentTypeSelection()));
+                          //SharedWidgets.showMOSAICDialog("Payments will be available soon.",context);
+                        },
+                      ))
+                ],
+              ),
+            );
+          }
         });
   }
 
@@ -754,7 +770,7 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
               alignment: Alignment.bottomLeft,
               padding: EdgeInsets.only(left: labCellsLeftPadding),
               width: rowWidth / labBalanceCellWidthFactor,
-              child: Text(openingBalance.toString(),
+              child: Text(openingBalance.toStringAsFixed(3),
                   style: MyFontStyles.statementEntryFontStyle(context).copyWith(
                       fontWeight: FontWeight.w700,
                       fontSize: Responsiveness.patientNameFontSize!.sp + 7.sp),
@@ -952,8 +968,9 @@ class _LabStatementMainScreenState extends State<LabStatementMainScreen> {
 
   String getCurrency() {
     var format = NumberFormat.simpleCurrency(locale: Platform.localeName);
-    print(Platform.localeName);
-    print(format.currencyName);
+    print("Platform: " + Platform.localeName);
+    print("Format: " + format.currencyName!);
+    if (Platform.localeName == "en_JO") return "JOD";
     return format.currencySymbol;
   }
 }
